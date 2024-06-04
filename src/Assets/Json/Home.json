@@ -1,0 +1,142 @@
+{
+    "patients": [
+      {
+        "name": "John Doe",
+        "age": 35,
+        "gender": "Male",
+        "mobile": "1234567890",
+        "appointment": "2024-04-12",
+        "no_of_past_appointment": 5,
+        "no_of_upcoming_appointment": 1,
+        "address": "123 Main St, City, Country",
+        "medical_history": "Hypertension, Diabetes",
+        "appointment_history": [
+          {
+            "date_of_appointment": "2024-04-05",
+            "main_regions_for_visit": ["Cardiology"],
+            "timing_of_visit": "10:00 AM",
+            "prescription_report": [
+              {
+                "medicine_name": "Amlodipine",
+                "dosage": "5mg",
+                "frequency": "once daily"
+              }
+            ]
+          },
+          {
+            "date_of_appointment": "2024-03-15",
+            "main_regions_for_visit": ["Ophthalmology"],
+            "timing_of_visit": "11:30 AM",
+            "prescription_report": [
+              {
+                "medicine_name": "Glasses",
+                "dosage": "N/A",
+                "frequency": "N/A"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Jane Smith",
+        "age": 45,
+        "gender": "Female",
+        "mobile": "9876543210",
+        "appointment": "2024-04-15",
+        "no_of_past_appointment": 3,
+        "no_of_upcoming_appointment": 2,
+        "address": "456 Oak St, City, Country",
+        "medical_history": "Asthma, Arthritis",
+        "appointment_history": [
+          {
+            "date_of_appointment": "2024-03-25",
+            "main_regions_for_visit": ["Orthopedics"],
+            "timing_of_visit": "09:30 AM",
+            "prescription_report": [
+              {
+                "medicine_name": "Ibuprofen",
+                "dosage": "400mg",
+                "frequency": "twice daily"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Emily Johnson",
+        "age": 28,
+        "gender": "Female",
+        "mobile": "5556667777",
+        "appointment": "2024-04-18",
+        "no_of_past_appointment": 2,
+        "no_of_upcoming_appointment": 3,
+        "address": "789 Elm St, City, Country",
+        "medical_history": "Allergies, Migraines",
+        "appointment_history": [
+          {
+            "date_of_appointment": "2024-04-01",
+            "main_regions_for_visit": ["Neurology"],
+            "timing_of_visit": "02:00 PM",
+            "prescription_report": [
+              {
+                "medicine_name": "Sumatriptan",
+                "dosage": "100mg",
+                "frequency": "as needed for headaches"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Michael Brown",
+        "age": 50,
+        "gender": "Male",
+        "mobile": "3334445555",
+        "appointment": "2024-04-20",
+        "no_of_past_appointment": 4,
+        "no_of_upcoming_appointment": 1,
+        "address": "101 Pine St, City, Country",
+        "medical_history": "High Cholesterol, GERD",
+        "appointment_history": [
+          {
+            "date_of_appointment": "2024-04-10",
+            "main_regions_for_visit": ["Gastroenterology"],
+            "timing_of_visit": "03:30 PM",
+            "prescription_report": [
+              {
+                "medicine_name": "Omeprazole",
+                "dosage": "20mg",
+                "frequency": "once daily before breakfast"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Sarah Lee",
+        "age": 40,
+        "gender": "Female",
+        "mobile": "9998887777",
+        "appointment": "2024-04-25",
+        "no_of_past_appointment": 1,
+        "no_of_upcoming_appointment": 2,
+        "address": "202 Maple St, City, Country",
+        "medical_history": "Depression, Insomnia",
+        "appointment_history": [
+          {
+            "date_of_appointment": "2024-04-08",
+            "main_regions_for_visit": ["Psychiatry"],
+            "timing_of_visit": "01:00 PM",
+            "prescription_report": [
+              {
+                "medicine_name": "Sertraline",
+                "dosage": "50mg",
+                "frequency": "once daily"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+  
