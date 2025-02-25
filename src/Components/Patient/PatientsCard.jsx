@@ -2,86 +2,119 @@ import {
   FlatList,
   Image,
   Modal,
+  Pressable,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useState,useCallback } from "react";
 import { responsiveFontSize, responsivePadding } from "../../Theme/Responsive";
-import Data from "../../Assets/Json/PatientsList.json";
-import Ionicons from "react-native-vector-icons/Ionicons";
+import FontAwesome from "react-native-vector-icons/FontAwesome";
+import Feather from "react-native-vector-icons/Feather";
 import Entypo from "react-native-vector-icons/Entypo";
 import Colors from "../../Theme/Colors";
 import { useNavigation } from "@react-navigation/native";
-const PatientsCard = () => {
+import {
+  moderateScale,
+  moderateScaleVertical,
+  textScale,
+} from "../../utils/ResponsiveSize";
+import FontFamily from "../../utils/FontFamily";
+
+const PatientsCard = ({ allPatientsList }) => {
   const navigation = useNavigation();
   const staticImageURL = "https://picsum.photos/300";
   const [showModal, setShowModal] = useState(false);
-  const renderItem = ({ item }) => {
-    return (
-      <TouchableOpacity style={styles.rednerTocuh}>
-        <View style={styles.dataHolder}>
-          <Image
-            source={{ uri: staticImageURL }}
-            resizeMode="cover"
-            style={styles.imageStyle}
-          />
-          <View style={{ justifyContent: "space-around" }}>
-            <View style={styles.contentHolder}>
-              <Text style={styles.nameText}>{item?.Name}</Text>
-              <Text style={styles.visittext}>{item?.No_of_Visit} Visits</Text>
+  const renderItem = useCallback(
+    ({ item, index }) => (
+      <Pressable key={index} style={styles.renderTouch}>
+        <View style={styles.innerView}>
+          <View style={{ width: "25%" }}>
+            <Image
+              source={{ uri: staticImageURL }}
+              resizeMode="cover"
+              style={styles.imageStyle}
+            />
+          </View>
+          <View style={styles.dataHolder}>
+            <View style={styles.dataInnerView}>
+              <Text style={styles.nameText}>
+                {item?.dataValues?.first_name || ""}{" "}
+                {item?.dataValues?.middle_name || ""}{" "}
+                {item?.dataValues?.last_name || ""}
+              </Text>
+              <Text style={styles.visitText}>
+                {item?.dataValues?.no_of_visits || "0"}{" "}
+                {item?.dataValues?.no_of_visits === 1 ? "Visit" : "Visits"}
+              </Text>
             </View>
             <View style={styles.lowerContentHolder}>
-              <Text style={styles.descriptionText}>{item?.Age} years</Text>
-              <Text style={styles.seprator}>|</Text>
-              <Text style={styles.descriptionText}>{item?.Gender}</Text>
-              <Text style={styles.seprator}>|</Text>
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <Ionicons
-                  name="call-outline"
-                  size={responsiveFontSize(20)}
+              <View style={styles.lowerInnerView}>
+                <Text style={styles.descriptionText}>
+                  {item?.dataValues?.age ? `${item?.dataValues?.age} Years` : "N/A"}
+                </Text>
+              </View>
+              <Text>|</Text>
+              <View style={styles.lowerInnerView}>
+                <FontAwesome
+                  name={item?.dataValues?.gender === "Male" ? "male" : "female"}
                   color={Colors.MediumGrey}
+                  size={responsiveFontSize(20)}
                 />
-                <Text style={styles.descriptionText}>{item?.Mobile_No}</Text>
+                <Text style={styles.descriptionText}>
+                  {item?.dataValues?.gender || "N/A"}
+                </Text>
+              </View>
+              <Text>|</Text>
+              <View style={styles.lowerInnerView}>
+                <Feather
+                  name={"smartphone"}
+                  color={Colors.MediumGrey}
+                  size={responsiveFontSize(20)}
+                />
+                <Text style={styles.descriptionText}>
+                  {item?.dataValues?.phone_number || "N/A"}
+                </Text>
               </View>
             </View>
           </View>
         </View>
-      </TouchableOpacity>
-    );
-  };
+      </Pressable>
+    ),
+    [staticImageURL]
+  )
   return (
     <>
-      <FlatList
-        style={{ marginTop: responsivePadding(10) }}
-        showsVerticalScrollIndicator={false}
-        data={Data?.patients}
-        renderItem={renderItem}
-        keyExtractor={(item, index) => index}
-      />
-      <TouchableOpacity
-        style={styles.addButton}
-        onPress={() => setShowModal(!showModal)}
-      >
-        <Entypo
-          name="plus"
-          size={responsiveFontSize(30)}
-          color={Colors.White}
+      {allPatientsList?.length > 0 ? (
+        <FlatList
+          style={{ marginTop: responsivePadding(10) }}
+          showsVerticalScrollIndicator={false}
+          data={allPatientsList}
+          renderItem={renderItem}
+          keyExtractor={(item, index) => index}
         />
-      </TouchableOpacity>
-      <Modal
-        visible={showModal}
-        animationType="slide"
-        transparent={true}
+      ) : (
+        <View style={styles.emptyView}>
+          <Text style={styles.emptyText}>No Patients Founds</Text>
+        </View>
+      )}
+
+      <TouchableOpacity
+        activeOpacity={0.9}
+        style={styles.addButton}
+        onPress={() => navigation.navigate("Add Patients")}
       >
+        <Entypo name="plus" size={moderateScale(30)} color={Colors.White} />
+      </TouchableOpacity>
+      <Modal visible={showModal} animationType="slide" transparent={true}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <TouchableOpacity
               style={styles.optionButton}
               onPress={() => {
                 setShowModal(false);
-                navigation.push('Add Patients');
+                navigation.push("Add Patients");
               }}
             >
               <Text style={styles.optionText}>Add New Patients</Text>
@@ -102,34 +135,70 @@ const PatientsCard = () => {
 export default PatientsCard;
 
 const styles = StyleSheet.create({
-  rednerTocuh: {
-    borderWidth: responsivePadding(2),
+  renderTouch: {
+    borderWidth: moderateScale(2),
     width: "95%",
     alignSelf: "center",
-    padding: responsivePadding(10),
-    marginVertical: responsivePadding(10),
-    borderRadius: responsivePadding(10),
+    marginVertical: moderateScale(5),
+    borderRadius: moderateScale(5),
     backgroundColor: Colors.White,
     borderColor: Colors.White,
   },
+  innerView: {
+    width: "100%",
+    alignSelf: "center",
+    padding: moderateScale(10),
+    flexDirection: "row",
+    gap: moderateScale(5),
+    elevation: moderateScale(5),
+    backgroundColor: Colors.White,
+    borderRadius: moderateScale(5),
+  },
   imageStyle: {
-    width: responsiveFontSize(75),
-    height: responsivePadding(100),
+    width: "100%",
+    height: moderateScale(90),
   },
   dataHolder: {
+    width: "73%",
+    justifyContent: "space-around",
+  },
+  dataInnerView: {
+    width: "100%",
     flexDirection: "row",
-    gap: responsivePadding(10),
-    // alignItems: 'center',
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  lowerContentHolder: {
+    marginTop: moderateScaleVertical(10),
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  lowerInnerView: {
+    flexDirection: "row",
+    gap: moderateScale(2),
   },
   nameText: {
     color: Colors.Tertiary,
-    fontSize: responsiveFontSize(18),
-    fontWeight: "600",
+    fontSize: textScale(14),
+    fontFamily: FontFamily.P_500,
+    textTransform:'capitalize'
   },
-  visittext: {
+  visitText: {
     color: Colors.Primary,
-    fontSize: responsiveFontSize(18),
-    fontWeight: "600",
+    fontSize: textScale(12),
+    fontFamily: FontFamily.P_400,
+  },
+  detailsHolder: {
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  ageHolder: {
+    borderColor: Colors.MediumGrey,
+    padding: moderateScale(10),
+    width: "25%",
+    alignItems: "center",
   },
   contentHolder: {
     flexDirection: "row",
@@ -137,66 +206,74 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: "85%",
   },
-  lowerContentHolder: {
-    width: "85%",
+  bottomView: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    // gap:responsivePadding(10),
+    borderColor: Colors.Primary,
+    width: "95%",
+    borderRadius: responsiveFontSize(5),
   },
   descriptionText: {
-    fontSize: responsiveFontSize(14),
+    fontSize: textScale(12),
     color: Colors.MediumGrey,
-    fontWeight: "500",
-  },
-  seprator: {
-    color: Colors.Tertiary,
-    fontSize: responsiveFontSize(18),
-    fontWeight: "600",
+    fontFamily: FontFamily.P_400,
+    textAlign: "center",
+    textTransform:'capitalize'
   },
   addButton: {
-    borderWidth: responsivePadding(2),
+    borderWidth: moderateScale(2),
     position: "absolute",
-    width: responsivePadding(50),
-    height: responsivePadding(50),
-    borderRadius: responsivePadding(5),
+    width: moderateScale(60),
+    height: moderateScale(60),
+    borderRadius: moderateScale(10),
     borderColor: Colors.Primary,
     backgroundColor: Colors.Primary,
     alignItems: "center",
     justifyContent: "center",
-    bottom: responsivePadding(40),
-    right: responsivePadding(40),
-    elevation: responsivePadding(20),
+    bottom: moderateScale(40),
+    right: moderateScale(40),
+    elevation: moderateScale(20),
     shadowColor: "#000",
     shadowOpacity: 0.2,
     shadowOffset: {
       width: 0,
-      height: responsivePadding(2),
+      height: moderateScale(2),
     },
-    shadowRadius: responsivePadding(3),
-  },modalContainer: {
+    shadowRadius: moderateScale(3),
+  },
+  modalContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
     backgroundColor: Colors.White,
-    padding: responsivePadding(20),
-    borderRadius: responsivePadding(10),
-    alignItems: 'center',
-    width: '80%',
+    padding: moderateScale(20),
+    borderRadius: moderateScale(10),
+    alignItems: "center",
+    width: "80%",
   },
   optionButton: {
-    width: '100%',
-    paddingVertical: responsivePadding(15),
+    width: "100%",
+    paddingVertical: moderateScaleVertical(15),
     borderBottomWidth: 1,
     borderBottomColor: Colors.Black,
   },
   optionText: {
-    fontSize: responsiveFontSize(18),
+    fontSize: textScale(18),
     color: Colors.Tertiary,
-    textAlign: 'center',
-    fontWeight:'500'
+    textAlign: "center",
+    fontFamily: FontFamily.P_500,
+  },
+  emptyView: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  emptyText: {
+    color: Colors.MediumGrey,
+    fontSize: textScale(16),
+    fontFamily: FontFamily.P_500,
   },
 });

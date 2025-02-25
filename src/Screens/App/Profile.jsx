@@ -6,7 +6,6 @@ import {
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import Colors from '../../Theme/Colors';
-import {responsiveFontSize, responsivePadding} from '../../Theme/Responsive';
 import UpperView from '../../Components/Profile/UpperView';
 import LowerView from '../../Components/Profile/LowerView';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -34,9 +33,8 @@ const Profile = () => {
   return (
     <>
       <SafeAreaView style={{backgroundColor: Colors.Primary}} />
-      <StatusBar barStyle={'dark-content'} backgroundColor={Colors.Primary} />
+      <StatusBar barStyle={'light-content'} backgroundColor={Colors.Primary} />
       <View style={styles.main}>
-        {/* {console.log(UserLoginData,"Line 40")} */}
         <UpperView userData={UserLoginData}/>
         <LowerView userData={UserLoginData}/>
       </View>

@@ -15,23 +15,31 @@ import Colors from "../../Theme/Colors";
 import { Calendar } from "react-native-calendars";
 import Button from "../General/Button";
 import { useNavigation } from "@react-navigation/native";
-const DoctorAvailability = () => {
+import Popup from "../General/Popup";
+import Service from "../../Service/Service";
+const DoctorAvailability = ({ route }) => {
+  const { incoming } = route.params;
+  console.log(incoming, "Line 21");
   const navigation = useNavigation();
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedSlot, setSelectedSlot] = useState("morning");
+  const [selectedTime, setSelectedTime] = useState(null);
+  const [visible, setIsVisible] = useState(false);
 
   const onDayPress = (day) => {
     setSelectedDate(day.dateString);
-    // Reset selected slot when a new date is selected
     setSelectedSlot("morning");
-    // You can perform any additional actions here upon selecting a date
   };
 
   const selectSlot = (slot) => {
     setSelectedSlot(slot);
-    // You can perform any additional actions here upon selecting a slot
   };
 
+  const sendData = () => {
+    Service.selectedDate = selectedDate;
+    Service.selectedTime = selectedTime;
+    navigation.goBack();
+  };
   // Generate time slots at 30-minute intervals
   const generateTimeSlots = () => {
     const slots = [];
@@ -60,9 +68,41 @@ const DoctorAvailability = () => {
 
     return slots;
   };
-  const handleUpdate = () => {
-    Alert.alert("Update");
+
+  const handleSlotSelection = (item) => {
+    setSelectedTime(item);
   };
+
+  function formatDate(inputDate) {
+    // Parse input date string into a Date object
+    const date = new Date(inputDate);
+
+    // Define months array for month name conversion
+    const months = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+
+    const day = date.getDate();
+    const monthIndex = date.getMonth(); // Get month index (0-11)
+    const year = date.getFullYear(); // Get full year (YYYY)
+
+    // Create formatted date string in 'DD MMM YYYY' format
+    const formattedDate = `${day} ${months[monthIndex]} ${year}`;
+    // console.log(formattedDate)
+
+    return formattedDate;
+  }
 
   return (
     <>
@@ -88,6 +128,7 @@ const DoctorAvailability = () => {
         {/* Calendar */}
         <View style={styles.calendarHolder}>
           <Calendar
+            minDate={new Date()}
             current={new Date().toISOString().split("T")[0]}
             onDayPress={onDayPress}
             markedDates={{
@@ -142,10 +183,30 @@ const DoctorAvailability = () => {
           </View>
         </View>
         {/* Slots */}
+
+        <Text style={styles.text1}>Slots</Text>
+
         <View style={styles.slotContainer}>
           {generateTimeSlots().map((slot, index) => (
-            <TouchableOpacity key={index} style={styles.slotButton}>
-              <Text style={styles.slotText}>{slot}</Text>
+            <TouchableOpacity
+              onPress={() => handleSlotSelection(slot)}
+              key={index}
+              style={[
+                styles.slotButton,
+                selectedTime === slot
+                  ? styles.selectedSlot
+                  : styles.nonSelectedSlot,
+              ]}
+            >
+              <Text
+                style={
+                  selectedTime === slot
+                    ? styles.slotText
+                    : styles.inactiveButtonText
+                }
+              >
+                {slot}
+              </Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -157,8 +218,18 @@ const DoctorAvailability = () => {
             marginVertical: responsivePadding(10),
           }}
         >
-          <Button title={"Confirm"} handleAction={handleUpdate} />
+          <Button title={"Confirm"} handleAction={() => setIsVisible(true)} />
         </View>
+
+        <Popup
+          visible={visible}
+          title="Success"
+          description={`Appointment Scheduled ${`\n`} Successfully For:`}
+          subtitle={!selectedDate ? "" : formatDate(selectedDate)}
+          subtitle1={selectedTime}
+          text="Close"
+          onPress={() => sendData()}
+        />
       </ScrollView>
     </>
   );
@@ -180,6 +251,12 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: responsiveFontSize(20),
+    color: Colors.Black,
+    fontWeight: "600",
+  },
+  text1: {
+    fontSize: responsiveFontSize(20),
+    padding: responsiveFontSize(10),
     color: Colors.Black,
     fontWeight: "600",
   },
@@ -220,12 +297,12 @@ const styles = StyleSheet.create({
   },
   Button: {
     width: "45%",
-    borderWidth: responsivePadding(2),
     padding: responsivePadding(10),
     borderRadius: responsivePadding(10),
     alignItems: "center",
     backgroundColor: Colors.Primary,
-    borderColor: Colors.Primary,
+    borderColor: Colors.MediumGrey,
+    borderWidth: responsivePadding(2),
   },
   buttontext: {
     color: Colors.White,
@@ -247,14 +324,14 @@ const styles = StyleSheet.create({
     padding: responsivePadding(10),
     borderRadius: responsivePadding(10),
     alignItems: "center",
-    backgroundColor: Colors.Primary,
-    borderColor: Colors.Primary,
+
+    borderColor: Colors.MediumGrey,
     marginTop: responsivePadding(10),
   },
   slotText: {
     color: Colors.White,
     fontWeight: "600",
-    fontSize: responsiveFontSize(18),
+    fontSize: responsiveFontSize(16),
   },
   activeButton: {
     backgroundColor: Colors.Primary,
@@ -263,9 +340,17 @@ const styles = StyleSheet.create({
     color: Colors.White,
   },
   inactiveButton: {
-    backgroundColor: Colors.Grey,
+    backgroundColor: "transparent",
   },
   inactiveButtonText: {
-    color: Colors.Black,
+    color: Colors.Tertiary,
+  },
+  selectedSlot: {
+    backgroundColor: Colors.Primary,
+    color: Colors.Grey,
+  },
+  nonSelectedSlot: {
+    backgroundColor: "transparent",
+    color: Colors.Grey,
   },
 });

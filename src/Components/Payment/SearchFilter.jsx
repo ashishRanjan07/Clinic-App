@@ -10,18 +10,19 @@ import Feather from "react-native-vector-icons/Feather";
 import { responsiveFontSize, responsivePadding } from "../../Theme/Responsive";
 import SimpleLineIcons from "react-native-vector-icons/SimpleLineIcons";
 
-const SearchFilter = ({ toggleFilter }) => {
+const SearchFilter = ({ handleSearch,toggleFilter }) => {
   return (
     <View style={styles.searchView}>
       <View style={styles.search}>
         <TextInput
-          placeholder="Search by name or number"
+          placeholder="Search by number, names"
           placeholderTextColor={Colors.MediumGrey}
+          onChangeText={handleSearch}
           style={styles.textInput}
         />
         <Feather
           name="search"
-          size={responsiveFontSize(30)}
+          size={responsiveFontSize(25)}
           color={Colors.MediumGrey}
         />
       </View>
@@ -63,6 +64,7 @@ const styles = StyleSheet.create({
   textInput: {
     width: "80%",
     color: Colors.Black,
+    
     fontSize: responsiveFontSize(16),
   },
   icon: {

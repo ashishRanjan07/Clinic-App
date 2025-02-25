@@ -12,27 +12,35 @@ import Colors from "../../Theme/Colors";
 import AntDesign from "react-native-vector-icons/AntDesign";
 import SimpleLineIcons from "react-native-vector-icons/SimpleLineIcons";
 import images from "../../Theme/Image";
+import {
+  moderateScale,
+  moderateScaleVertical,
+  textScale,
+} from "../../utils/ResponsiveSize";
+import { tempServerAddress } from "../../API_Services/API_service";
 
-const Search = ({ toggleFilter }) => {
+const Search = ({ handleSearch, toggleFilter, title }) => {
   return (
     <View style={styles.main}>
+      <Text style={styles.text}>{title}</Text>
       <View style={styles.searchHolder}>
         <View style={styles.search}>
           <TextInput
             placeholder="Search for Patients"
             placeholderTextColor={Colors.MediumGrey}
             style={styles.TextINputField}
+            onChangeText={handleSearch}
           />
           <AntDesign
             name="search1"
-            size={responsiveFontSize(20)}
+            size={moderateScale(20)}
             color={Colors.MediumGrey}
           />
         </View>
         <TouchableOpacity style={styles.filterHolder} onPress={toggleFilter}>
           <SimpleLineIcons
             name="equalizer"
-            size={responsiveFontSize(30)}
+            size={moderateScale(30)}
             color={Colors.White}
             style={styles.iconStyle}
           />
@@ -47,7 +55,7 @@ export default Search;
 const styles = StyleSheet.create({
   main: {
     width: "100%",
-    marginTop: responsivePadding(10),
+    marginTop: moderateScaleVertical(10),
     alignSelf: "center",
   },
   searchHolder: {
@@ -59,31 +67,40 @@ const styles = StyleSheet.create({
   search: {
     flexDirection: "row",
     alignItems: "center",
-    borderWidth: responsivePadding(2),
-    borderRadius: responsivePadding(10),
+    backgroundColor: Colors.White,
+
+    borderRadius: moderateScale(10),
     borderColor: Colors.MediumGrey,
     width: "80%",
     justifyContent: "space-between",
-    paddingHorizontal: responsivePadding(10),
+    paddingHorizontal: moderateScale(10),
   },
   TextINputField: {
-    padding: responsivePadding(10),
-    fontSize: responsiveFontSize(18),
-    color: Colors.Black,
-    fontWeight: "600",
+    padding: moderateScale(10),
+    flex: 1,
+    fontSize: textScale(17),
+    color: Colors.MediumGrey,
   },
   image: {
-    height: responsivePadding(40),
-    width: responsivePadding(40),
+    height: moderateScale(40),
+    width: moderateScale(40),
   },
   iconStyle: {
     transform: [{ rotate: "90deg" }],
   },
   filterHolder: {
     borderColor: Colors.Primary,
-    borderWidth: responsivePadding(2),
-    padding: responsivePadding(8),
-    borderRadius: responsivePadding(10),
+    borderWidth: moderateScale(2),
+    padding: moderateScale(8),
+    borderRadius: moderateScale(10),
     backgroundColor: Colors.Primary,
+  },
+  text: {
+    color: Colors.Tertiary,
+    fontSize: textScale(14),
+    fontWeight: "600",
+    width: "90%",
+    marginHorizontal: moderateScale(10),
+    marginBottom: moderateScaleVertical(10),
   },
 });

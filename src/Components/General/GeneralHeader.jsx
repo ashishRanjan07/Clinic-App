@@ -4,6 +4,8 @@ import { responsiveFontSize, responsivePadding } from "../../Theme/Responsive";
 import AntDesign from "react-native-vector-icons/AntDesign";
 import Colors from "../../Theme/Colors";
 import { useNavigation } from "@react-navigation/native";
+import { moderateScale, textScale } from "../../utils/ResponsiveSize";
+import FontFamily from "../../utils/FontFamily";
 const GeneralHeader = ({ title }) => {
   const navigation = useNavigation();
   return (
@@ -15,7 +17,7 @@ const GeneralHeader = ({ title }) => {
         >
           <AntDesign
             name="arrowleft"
-            size={responsiveFontSize(40)}
+            size={textScale(35)}
             color={Colors.Black}
           />
         </TouchableOpacity>
@@ -33,13 +35,13 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center",
-    padding: responsivePadding(15),
+    padding: moderateScale(15),
   },
   text: {
     width: "80%",
     textAlign: "center",
-    fontSize: responsiveFontSize(24),
+    fontSize: textScale(20),
     color: Colors.Black,
-    fontWeight: "500",
+   fontFamily:FontFamily.P_500
   },
 });

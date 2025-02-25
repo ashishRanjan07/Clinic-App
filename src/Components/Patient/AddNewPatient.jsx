@@ -1,7 +1,9 @@
 import {
   Image,
+  KeyboardAvoidingView,
   PermissionsAndroid,
   Platform,
+  Pressable,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -11,19 +13,28 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Colors from "../../Theme/Colors";
 import GeneralHeader from "../General/GeneralHeader";
-import { responsiveFontSize, responsivePadding } from "../../Theme/Responsive";
-import Modal from "react-native-modal";
 import { useNavigation } from "@react-navigation/native";
 import images from "../../Theme/Image";
 import Feather from "react-native-vector-icons/Feather";
 import { launchCamera, launchImageLibrary } from "react-native-image-picker";
-import { addPatients } from "../../API_Services/Auth_API";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import LottieView from 'lottie-react-native';
 import LotifileAlert from "../General/LotifileAlert";
+import { addPatients } from "../../API_Services/Auth_API";
+import CustomTextInputBox from "../General/CustomTextInputBox";
+import CustomBottomModal from "../General/CustomBottomModal";
+import { BallIndicator } from "react-native-indicators";
+import {
+  moderateScale,
+  moderateScaleVertical,
+  textScale,
+} from "../../utils/ResponsiveSize";
+import FontFamily from "../../utils/FontFamily";
+import RBSheet from "react-native-raw-bottom-sheet";
+import InternalHeader from "../General/InternalHeader";
+import Ionicons from 'react-native-vector-icons/Ionicons'
 
 const AddNewPatient = () => {
   const navigation = useNavigation();
@@ -52,20 +63,24 @@ const AddNewPatient = () => {
   const [genderError, setGenderError] = useState("");
   const [clinicId, setClinicId] = useState("");
   const [showAlert, setShowAlert] = useState(false);
-
-  const toggleGenderModal = () => {
-    setGenderModalVisible(!isGenderModalVisible);
-  };
-
-  const toggleBloodGroupModal = () => {
-    setIsBloodModalVisible(!isBloodModalVisible);
-  };
+  const [loading, setLoading] = useState(false);
+  const [patientsData, setPatientsData] = useState();
+  const genderRbSheetRef = useRef();
+  const bloodRbSheetRef = useRef();
+  const imageUploadRbSheetRef = useRef();
+ 
 
   const genderData = [
     { id: 1, name: "Male" },
     { id: 2, name: "Female" },
     { id: 3, name: "Other" },
   ];
+
+  const imageUploadMethod = [
+    { id: 1, name: "Camera" },
+    { id: 2, name: "Gallery" },
+  ];
+
   const bloodGroupData = [
     { id: 1, name: "A+" },
     { id: 2, name: "A-" },
@@ -76,16 +91,24 @@ const AddNewPatient = () => {
     { id: 7, name: "AB+" },
     { id: 8, name: "AB-" },
   ];
-
-  const handleGenderSelection = (selectedGender) => {
-    setGender(selectedGender);
-    toggleGenderModal();
+  const toggleGenderModal = () => {
+    if (genderRbSheetRef.current) {
+      genderRbSheetRef.current.open();
+    }
   };
 
-  const handleBloodGroupSelection = (selectedBloodGroup) => {
-    setBloodGroup(selectedBloodGroup);
-    toggleBloodGroupModal();
+  const toggleBloodGroupModal = () => {
+    if (bloodRbSheetRef.current) {
+      bloodRbSheetRef.current.open();
+    }
   };
+
+  const toggleImageUpload = () => {
+    if (imageUploadRbSheetRef.current) {
+      imageUploadRbSheetRef.current.open();
+    }
+  };
+
   const galleryOpen = async () => {
     try {
       const options = {
@@ -102,12 +125,9 @@ const AddNewPatient = () => {
           console.log("Image Picker Error:", response.error);
         } else {
           let imageUri = response.uri || response.assets[0]?.uri;
-          setIsModalVisible(false);
           setProfileImage(imageUri);
           console.log(imageUri, "Line 31");
-
-          // Now send the image to the server
-          //   await updateProfilePicture(imageUri);
+          imageUploadRbSheetRef.current.close();
         }
       });
     } catch (error) {
@@ -157,12 +177,10 @@ const AddNewPatient = () => {
     }
   };
 
-  // Function to open camera (iOS)
   const openCameraIOS = () => {
     openCamera();
   };
 
-  // Generic function to open camera
   const openCamera = () => {
     try {
       const options = {
@@ -183,14 +201,15 @@ const AddNewPatient = () => {
           let imageUri = response.uri || response.assets[0]?.uri;
           setIsModalVisible(false);
           setProfileImage(imageUri);
-
-          //   await updateProfilePicture(imageUri);
+          imageUploadRbSheetRef.current.close();
+          // await updateProfilePicture(imageUri);
         }
       });
     } catch (error) {
       console.log("Error in Opening camera", error.message);
     }
   };
+
   useEffect(() => {
     if (fName.length != 0) {
       setFNameError("");
@@ -221,11 +240,12 @@ const AddNewPatient = () => {
   useEffect(() => {
     fetchUserLoginData();
   }, []);
+
   const fetchUserLoginData = async () => {
     const response = JSON.parse(await AsyncStorage.getItem("loginData"));
-    console.log(response?.clinic_staff?.clinic_id, "Line 221");
     setClinicId(response?.clinic_staff?.clinic_id);
   };
+
   const validate = () => {
     let isValid = true;
     if (!fName.trim()) {
@@ -272,6 +292,9 @@ const AddNewPatient = () => {
   };
 
   const handleSubmit = async () => {
+    const loginUserData = await AsyncStorage.getItem("loginData");
+    const parsedLoginData = JSON.parse(loginUserData);
+
     if (validate()) {
       const userData = new FormData();
       userData.append("first_name", fName);
@@ -284,42 +307,39 @@ const AddNewPatient = () => {
       userData.append("address", address);
       userData.append("medical_history", message);
       userData.append("blood_group", bloodGroup);
-      userData.append("clinic_id", clinicId);
-      if (profileImage) {
-        userData.append("file", {
-          uri: profileImage,
-          type: "image/png",
-          name: "patient.jpg",
-        });
-      }
-      console.log(userData, "Line 305");
-
+      userData.append("clinic_id", parsedLoginData?.clinic_staff?.clinic_id);
+      setPatientsData(userData);
+      console.log(userData, "Line 286");
       const response = await addPatients(userData);
-      console.log(response,"Line 308");
-      if(response.status){
-        console.log("Success");
-        setFName('');
-        setMName('');
-        setLName('');
-        setMNumber('');
-        setEmail('');
-        setAge('');
-        setGender('');
-        setAddress('');
-        setMessage('');
-        setBloodGroup('');
-        setProfileImage(null)
+      console.log(response, "Success Line 289");
+      if (response.status) {
+        // console.log(response, "Success Line 289");
+        // setFName("");
+        // setMName("");
+        // setLName("");
+        // setMNumber("");
+        // setEmail("");
+        // setAge("");
+        // setGender("");
+        // setAddress("");
+        // setMessage("");
+        // setBloodGroup("");
+        // setProfileImage(null);
+        setLoading(false);
         setShowAlert(true);
       }
-      // Proceed with form submission
     }
   };
-  const handleModal = () => setIsModalVisible(() => !isModalVisible);
+
   return (
-    <View style={{ flex: 1, backgroundColor: Colors.Secondary }}>
+    <KeyboardAvoidingView
+      style={styles.main}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 50 : 0}
+    >
       <SafeAreaView style={{ backgroundColor: Colors.Secondary }} />
       <StatusBar barStyle={"dark-content"} backgroundColor={Colors.Secondary} />
-      <GeneralHeader title="Add Patient" />
+      <InternalHeader title="Add Patient" />
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
@@ -332,25 +352,23 @@ const AddNewPatient = () => {
             <Image source={images.user} style={styles.imageStyle} />
           )}
 
-          <TouchableOpacity
-            style={styles.icon}
-            onPress={() => setIsModalVisible(true)}
-          >
+          <TouchableOpacity style={styles.icon} onPress={toggleImageUpload}>
             <Feather
               name="camera"
-              size={responsiveFontSize(30)}
+              size={moderateScale(30)}
               color={Colors.White}
             />
           </TouchableOpacity>
         </View>
-        {/*First Name */}
+        {/* First Number */}
         <View style={styles.viewHolder}>
           <Text style={styles.text}>First Name</Text>
           <TextInput
             style={styles.inputBox}
-            placeholder="First Name"
+            placeholder={"First Name"}
+            keyboardType={"default"}
+            autoFocus={true}
             placeholderTextColor={Colors.MediumGrey}
-            keyboardType="default"
             value={fName}
             onChangeText={(text) => setFName(text)}
           />
@@ -360,10 +378,11 @@ const AddNewPatient = () => {
         <View style={styles.viewHolder}>
           <Text style={styles.text}>Middle Name</Text>
           <TextInput
+            multiLine={false}
             style={styles.inputBox}
-            placeholder="Middle Name"
+            placeholder={"Middle Name"}
+            keyboardType={"default"}
             placeholderTextColor={Colors.MediumGrey}
-            keyboardType="default"
             value={mName}
             onChangeText={(text) => setMName(text)}
           />
@@ -373,86 +392,81 @@ const AddNewPatient = () => {
           <Text style={styles.text}>Last Name</Text>
           <TextInput
             style={styles.inputBox}
-            placeholder="Last Name"
+            placeholder={"Last Name"}
+            keyboardType={"default"}
             placeholderTextColor={Colors.MediumGrey}
-            keyboardType="default"
             value={lName}
             onChangeText={(text) => setLName(text)}
           />
           {lNameError && <Text style={styles.errorText}>{lNameError}</Text>}
         </View>
-        {/*Phone Number */}
+        {/* Age */}
+        <View style={styles.viewHolder}>
+          <Text style={styles.text}>Age</Text>
+          <TextInput
+            style={styles.inputBox}
+            placeholder="Age"
+            placeholderTextColor={Colors.MediumGrey}
+            value={age}
+            maxlength={3}
+            keyboardType={"number-pad"}
+            onChangeText={(text) => setAge(text)}
+          />
+          {ageError && <Text style={styles.errorText}>{ageError}</Text>}
+        </View>
+        {/* Gender */}
+        <View style={styles.viewHolder}>
+          <Text style={styles.text}>Gender</Text>
+          <Pressable style={styles.inputBox2} onPress={toggleGenderModal}>
+            <Text
+              style={{
+                color: Gender ? Colors.Black : Colors.MediumGrey,
+                fontSize: textScale(15),
+              }}
+            >
+              {Gender ? Gender : "Select Gender"}
+            </Text>
+            <Ionicons
+              name="chevron-down"
+              size={moderateScale(15)}
+              color={Colors.MediumGrey}
+            />
+          </Pressable>
+          {genderError && <Text style={styles.errorText}>{genderError}</Text>}
+        </View>
+        {/* Email */}
+        <View style={styles.viewHolder}>
+          <Text style={styles.text}>Email Id</Text>
+          <TextInput
+            style={styles.inputBox}
+            placeholder={"Email Id"}
+            placeholderTextColor={Colors.MediumGrey}
+            value={email}
+            keyboardType={"email-address"}
+            onChangeText={(text) => setEmail(text)}
+
+          />
+        </View>
+        {/* Mobile Number */}
         <View style={styles.viewHolder}>
           <Text style={styles.text}>Mobile Number</Text>
           <TextInput
             style={styles.inputBox}
-            placeholder="Mobile Number"
+            placeholder={"Mobile Number"}
+            keyboardType={"phone-pad"}
+           maxLength={10}
             placeholderTextColor={Colors.MediumGrey}
-            keyboardType="number-pad"
-            maxLength={10}
             value={mNumber}
             onChangeText={(text) => setMNumber(text)}
           />
           {mNumberError && <Text style={styles.errorText}>{mNumberError}</Text>}
         </View>
-        {/*Email Id */}
-        <View style={styles.viewHolder}>
-          <Text style={styles.text}>Email Id</Text>
-          <TextInput
-            style={styles.inputBox}
-            placeholder="Email Id"
-            placeholderTextColor={Colors.MediumGrey}
-            keyboardType="email-address"
-            value={email}
-            onChangeText={(text) => setEmail(text)}
-          />
-        </View>
-        {/* Age and Gender */}
-        <View style={styles.ageGenderHolder}>
-          {/* Age */}
-          <View style={[styles.viewHolder, { width: "45%", padding: 0 }]}>
-            <Text style={styles.text}>Age</Text>
-            <TextInput
-              style={styles.inputBox}
-              placeholder="Age"
-              placeholderTextColor={Colors.MediumGrey}
-              maxLength={3}
-              keyboardType="number-pad"
-              value={age}
-              onChangeText={(text) => setAge(text)}
-            />
-            {ageError && <Text style={styles.errorText}>{ageError}</Text>}
-          </View>
-          {/* Gender */}
-          <View style={[styles.viewHolder, { width: "45%", padding: 0 }]}>
-            <Text style={styles.text}>Gender</Text>
-            <TouchableOpacity onPress={toggleGenderModal}>
-              <Text style={styles.inputBox}>
-                {Gender ? Gender : "Select Gender"}
-              </Text>
-            </TouchableOpacity>
-            {genderError && <Text style={styles.errorText}>{genderError}</Text>}
-          </View>
-        </View>
-        {/*Address */}
-        <View style={styles.viewHolder}>
-          <Text style={styles.text}>Address</Text>
-          <TextInput
-            style={[styles.inputBox, { height: responsivePadding(100) }]}
-            placeholder="Address"
-            multiline={true}
-            placeholderTextColor={Colors.MediumGrey}
-            keyboardType="default"
-            value={address}
-            onChangeText={(text) => setAddress(text)}
-          />
-          {addressError && <Text style={styles.errorText}>{addressError}</Text>}
-        </View>
+
         {/*Message */}
         <View style={styles.viewHolder}>
-          <Text style={styles.text}>Message</Text>
+          <Text style={styles.text}>Medical Message</Text>
           <TextInput
-            style={[styles.inputBox, { height: responsivePadding(100) }]}
+            style={[styles.inputBox, { height: moderateScale(100) }]}
             placeholder="Medical message"
             multiline
             placeholderTextColor={Colors.MediumGrey}
@@ -462,241 +476,288 @@ const AddNewPatient = () => {
           />
           {messageError && <Text style={styles.errorText}>{messageError}</Text>}
         </View>
-        {/* Patients Code and Blood group */}
-        <View style={styles.ageGenderHolder}>
-          {/* Age */}
-          <View style={[styles.viewHolder, { width: "45%", padding: 0 }]}>
-            <Text style={styles.text}>Patients Code</Text>
-            <TextInput
-              style={styles.inputBox}
-              placeholder="Patients Code"
-              placeholderTextColor={Colors.MediumGrey}
-              value={`${Math.random() * 100}`}
-              editable={false}
-            />
-          </View>
-          {/* Gender */}
-          <View style={[styles.viewHolder, { width: "45%", padding: 0 }]}>
-            <Text style={styles.text}>Blood Group</Text>
-            <TouchableOpacity onPress={toggleBloodGroupModal}>
-              <Text style={styles.inputBox}>
-                {bloodGroup ? bloodGroup : "Blood Group"}
-              </Text>
-            </TouchableOpacity>
-            {bloodGroupError && (
-              <Text style={styles.errorText}>{bloodGroupError}</Text>
-            )}
-          </View>
+        {/*Address */}
+        <View style={styles.viewHolder}>
+          <Text style={styles.text}>Address</Text>
+          <TextInput
+            style={[styles.inputBox, { height: moderateScale(100) }]}
+            placeholder="Address"
+            multiline={true}
+            placeholderTextColor={Colors.MediumGrey}
+            keyboardType="default"
+            value={address}
+            onChangeText={(text) => setAddress(text)}
+          />
+          {addressError && <Text style={styles.errorText}>{addressError}</Text>}
         </View>
-
+        {/* Blood Group */}
+        <View style={styles.viewHolder}>
+          <Text style={styles.text}>Blood Group</Text>
+          <Pressable style={styles.inputBox2} onPress={toggleBloodGroupModal}>
+            <Text
+              style={{
+                color: bloodGroup ? Colors.Black : Colors.MediumGrey,
+                fontSize: textScale(15),
+              }}
+            >
+              {bloodGroup ? bloodGroup : "Select Blood Group"}
+            </Text>
+            <Ionicons
+              name="chevron-down"
+              size={moderateScale(15)}
+              color={Colors.MediumGrey}
+            />
+          </Pressable>
+          {bloodGroupError && (
+            <Text style={styles.errorText}>{bloodGroupError}</Text>
+          )}
+        </View>
         {/* Save and Cancel Button */}
         <View style={styles.buttonHolder2}>
           <TouchableOpacity
+            activeOpacity={0.9}
             style={styles.button2}
             onPress={() => navigation.goBack()}
           >
             <Text style={styles.buttonText2}>Cancel </Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button2} onPress={handleSubmit}>
+          <TouchableOpacity
+            activeOpacity={0.9}
+            style={styles.button2}
+            onPress={handleSubmit}
+          >
             <Text style={styles.buttonText2}>Create </Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
-      <Modal
-        isVisible={isGenderModalVisible}
-        onBackdropPress={toggleGenderModal}
-      >
-        <View style={styles.genderModalView}>
-          {genderData.map((item) => (
-            <TouchableOpacity
-              key={item.id}
-              onPress={() => handleGenderSelection(item.name)}
-              style={styles.genderModalItem}
-            >
-              <Text style={styles.genderModalText}>{item.name}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </Modal>
-      <Modal
-        isVisible={isBloodModalVisible}
-        onBackdropPress={toggleBloodGroupModal}
-      >
-        <View style={styles.genderModalView}>
-          {bloodGroupData.map((item) => (
-            <TouchableOpacity
-              key={item.id}
-              onPress={() => handleBloodGroupSelection(item.name)}
-              style={styles.genderModalItem}
-            >
-              <Text style={styles.genderModalText}>{item.name}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </Modal>
-      <Modal isVisible={isModalVisible} onBackdropPress={handleModal}>
-        <View style={styles.genderModalView}>
-          <TouchableOpacity
-            onPress={openCameraPlatform}
-            style={styles.genderModalItem}
-          >
-            <Text style={styles.genderModalText}>Open Camera</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={galleryOpen}
-            style={styles.genderModalItem}
-          >
-            <Text style={styles.genderModalText}>Open Gallery</Text>
-          </TouchableOpacity>
-        </View>
-      </Modal>
       <LotifileAlert
         visible={showAlert}
         onClose={() => {
           setShowAlert(false);
-          navigation.push('Bottom Navigation');
+          console.log("Hii");
+          navigation.navigate("PatientsList");
         }}
         onYes={() => {
           // Handle Yes action here
-          navigation.push('AppointmentForm');
+          navigation.push("AppointmentForm", {
+            incoming: "Add Patients",
+            patientsData: patientsData,
+          });
           setShowAlert(false);
         }}
       />
-    </View>
+      {/* Upload Image Method */}
+      <RBSheet
+        ref={imageUploadRbSheetRef}
+        height={moderateScale(275)}
+        openDuration={250}
+        closeOnDragDown
+        customStyles={{
+          container: styles.rbSheetContainer,
+          draggableIcon: {
+            backgroundColor: Colors.MediumGrey,
+          },
+        }}
+      >
+        <CustomBottomModal
+          rbSheetRef={imageUploadRbSheetRef}
+          message={"Choose Image Upload Method"}
+          data={imageUploadMethod}
+          selectedValue={(text) => {
+            if (text === "Camera") {
+              openCameraPlatform();
+            }
+            if (text === "Gallery") {
+              galleryOpen();
+            }
+          }}
+        />
+      </RBSheet>
+
+      {/* Gender */}
+      <RBSheet
+        ref={genderRbSheetRef}
+        height={moderateScale(275)}
+        openDuration={250}
+        closeOnDragDown
+        customStyles={{
+          container: styles.rbSheetContainer,
+          draggableIcon: {
+            backgroundColor: Colors.MediumGrey,
+          },
+        }}
+      >
+        <CustomBottomModal
+          rbSheetRef={genderRbSheetRef}
+          message={"Choose Gender"}
+          data={genderData}
+          selectedValue={(text) => {
+            setGender(text);
+          }}
+        />
+      </RBSheet>
+
+      {/* Blood Group */}
+      <RBSheet
+        ref={bloodRbSheetRef}
+        height={moderateScale(550)}
+        openDuration={250}
+        closeOnDragDown
+        customStyles={{
+          container: styles.rbSheetContainer,
+          draggableIcon: {
+            backgroundColor: Colors.MediumGrey,
+          },
+        }}
+      >
+        <CustomBottomModal
+          rbSheetRef={bloodRbSheetRef}
+          message={"Choose Blood Group"}
+          data={bloodGroupData}
+          selectedValue={(text) => {
+            setBloodGroup(text);
+          }}
+        />
+      </RBSheet>
+
+      {loading && (
+        <View style={styles.loaderContainer}>
+          <View style={styles.loaderView}>
+            <BallIndicator color={Colors.Primary} count={8} size={40} />
+            <Text style={styles.loaderText}>Please Wait...</Text>
+          </View>
+        </View>
+      )}
+    </KeyboardAvoidingView>
   );
 };
 
 export default AddNewPatient;
 
 const styles = StyleSheet.create({
+  main: {
+    flex: 1,
+    backgroundColor: Colors.Secondary,
+  },
   scrollView: {
     flex: 1,
   },
   viewHolder: {
-    marginTop: responsivePadding(10),
-    padding: responsivePadding(10),
+    marginTop: moderateScaleVertical(10),
+    padding: moderateScale(10),
     width: "95%",
     alignSelf: "center",
-    gap: responsivePadding(10),
+    gap: moderateScale(10),
   },
   text: {
-    fontSize: responsiveFontSize(18),
-    fontWeight: "400",
+    fontSize: textScale(15),
+    fontFamily: FontFamily.P_400,
     color: Colors.Grey,
   },
   inputBox: {
     borderWidth: 1,
-    padding: responsivePadding(10),
-    borderRadius: responsivePadding(10),
+    padding: moderateScale(10),
+    borderRadius: moderateScale(10),
     borderColor: Colors.White,
-    fontSize: responsiveFontSize(18),
+    fontSize: textScale(15),
     color: Colors.Black,
     backgroundColor: Colors.White,
   },
-  inputHolder: {
+  inputBox2: {
     flexDirection: "row",
-    alignItems: "center",
-    alignSelf: "center",
-    width: "90%",
-    borderWidth: 2,
-    borderColor: Colors.MediumGrey,
-    padding: responsivePadding(10),
-    borderRadius: responsivePadding(10),
-    marginVertical: responsivePadding(5),
-  },
-  textInputView: {
-    fontSize: responsiveFontSize(18),
-    width: "100%",
-    padding: responsivePadding(10),
+    justifyContent: "space-between",
+    padding: moderateScale(12),
+    borderRadius: moderateScale(10),
+    borderColor: Colors.Green,
+    fontSize: textScale(15),
     color: Colors.Black,
-    fontWeight: "600",
-  },
-  genderModalView: {
     backgroundColor: Colors.White,
-    padding: responsivePadding(20),
-    borderRadius: responsivePadding(10),
-  },
-  genderModalItem: {
-    padding: responsivePadding(10),
-    marginVertical: responsivePadding(5),
     alignItems: "center",
-    borderWidth: responsivePadding(1),
-    borderRadius: responsivePadding(5),
-  },
-  genderModalText: {
-    fontSize: responsiveFontSize(18),
-    color: Colors.Black,
   },
   ageGenderHolder: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: responsivePadding(20),
-    paddingTop: responsivePadding(10),
+    padding: moderateScale(10),
   },
   button2: {
     width: "45%",
     alignItems: "center",
-    borderRadius: responsivePadding(5),
-    borderWidth: responsivePadding(1),
-    padding: responsivePadding(10),
+    borderRadius: moderateScale(5),
+    borderWidth: moderateScale(1),
+    padding: moderateScale(10),
     backgroundColor: Colors.Primary,
     borderColor: Colors.Primary,
   },
   buttonText2: {
     color: Colors.White,
-    fontSize: responsiveFontSize(18),
-    fontWeight: "600",
+    fontSize: textScale(16),
+    fontFamily: FontFamily.P_600,
   },
   buttonHolder2: {
     flexDirection: "row",
     justifyContent: "space-around",
     width: "95%",
     alignSelf: "center",
-    marginVertical: responsivePadding(20),
+    marginVertical: moderateScaleVertical(20),
   },
   imageHolder: {
     alignItems: "center",
-    marginBottom: responsivePadding(10),
+    marginBottom: moderateScaleVertical(10),
   },
   imageStyle: {
-    height: responsivePadding(150),
-    width: responsivePadding(150),
-    borderWidth: responsivePadding(2),
-    borderRadius: responsivePadding(75),
+    height: moderateScale(150),
+    width: moderateScale(150),
+    borderWidth: moderateScale(2),
+    borderRadius: moderateScale(75),
     borderColor: Colors.Primary,
   },
   icon: {
     position: "absolute",
-    top: responsivePadding(110),
-    right: responsivePadding(150),
-    borderWidth: responsivePadding(1),
-    borderRadius: responsivePadding(15),
+    top: "80%",
+    borderWidth: moderateScale(1),
+    borderRadius: moderateScale(15),
     backgroundColor: Colors.Primary,
     overflow: "hidden",
-    padding: responsivePadding(10),
+    padding: moderateScale(10),
     borderColor: Colors.Primary,
   },
-  modalButtonText: {
-    fontSize: responsiveFontSize(18),
-    fontWeight: "500",
-    color: Colors.Black,
+  errorText: {
+    fontSize: textScale(15),
+    color: Colors.CrimsonRed,
+    fontFamily: FontFamily.P_500,
+    width: "100%",
+    textTransform: "capitalize",
   },
-  modalView: {
+  loaderContainer: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+    backgroundColor: "transparent",
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: Colors.CrimsonRed,
-    borderRadius: responsivePadding(15),
   },
-  modalText: {
+  loaderView: {
+    borderWidth: 2,
+    height: "15%",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: moderateScaleVertical(10),
+    width: "35%",
+    borderRadius: moderateScale(10),
+    borderColor: Colors.Secondary,
+    padding: moderateScale(10),
+    backgroundColor: Colors.Secondary,
+    elevation: 10,
+    shadowColor: "#000", // shadow color
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  loaderText: {
+    fontSize: textScale(16),
     color: Colors.Black,
-    fontWeight: "bold",
-    fontSize: responsiveFontSize(20),
-    marginVertical: responsivePadding(15),
-  },
-  errorText: {
-    fontSize: responsiveFontSize(16),
-    color: Colors.CrimsonRed,
-    fontWeight: "500",
+    textAlign: "center",
+    fontFamily: FontFamily.P_400,
   },
 });

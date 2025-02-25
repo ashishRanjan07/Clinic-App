@@ -12,19 +12,7 @@
         "CheckUpType":"Regular",
         "Status": "Confirmed"
     },
-    {
-        "Image": "image2.jpg",
-        "Name": "Jane Smith",
-        "Age": 45,
-        "Type_of_Visit": "Emergency",
-        "Date": "2024-04-10",
-        "Time": "02:30 PM",
-        "Status": "Missed",
-        "Gender":"Male",
-        "Mobile":"6206416452",
-        "Address":"Patna - Bihar",
-        "CheckUpType":"Regular"
-    },
+   
     {
         "Image": "image3.jpg",
         "Name": "Michael Johnson",
@@ -51,19 +39,7 @@
         "Address":"Patna - Bihar",
         "CheckUpType":"Regular"
     },
-    {
-        "Image": "image5.jpg",
-        "Name": "Robert Brown",
-        "Age": 60,
-        "Type_of_Visit": "Emergency",
-        "Date": "2024-04-13",
-        "Time": "03:45 PM",
-        "Status": "Missed",
-        "Gender":"Male",
-        "Mobile":"6206416452",
-        "Address":"Patna - Bihar",
-        "CheckUpType":"Regular"
-    },
+    
     {
         "Image": "image6.jpg",
         "Name": "Sarah Wilson",
@@ -90,19 +66,7 @@
         "Address":"Patna - Bihar",
         "CheckUpType":"Regular"
     },
-    {
-        "Image": "image8.jpg",
-        "Name": "Jennifer Taylor",
-        "Age": 55,
-        "Type_of_Visit": "Emergency",
-        "Date": "2024-04-16",
-        "Time": "04:20 PM",
-        "Status": "Missed",
-        "Gender":"Male",
-        "Mobile":"6206416452",
-        "Address":"Patna - Bihar",
-        "CheckUpType":"Regular"
-    },
+    
     {
         "Image": "image9.jpg",
         "Name": "David Martinez",

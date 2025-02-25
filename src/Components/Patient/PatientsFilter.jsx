@@ -1,259 +1,416 @@
-import React from 'react';
+import React, { useEffect, useState } from "react";
 import {
-  SafeAreaView,
-  StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  ScrollView
-} from 'react-native';
-import Colors from '../../Theme/Colors';
-import AntDesign from 'react-native-vector-icons/AntDesign';
-import {responsiveFontSize, responsivePadding} from '../../Theme/Responsive';
+  ScrollView,
+  StyleSheet,
+} from "react-native";
+import Colors from "../../Theme/Colors";
+import AntDesign from "react-native-vector-icons/AntDesign";
+import {
+  moderateScale,
+  moderateScaleVertical,
+  textScale,
+} from "../../utils/ResponsiveSize";
+import FontFamily from "../../utils/FontFamily";
+import RBSheet from "react-native-raw-bottom-sheet";
 
-const PatientsFilter = ({ onClose }) => {
+const PatientsFilter = ({
+  rbSheetRef,
+  applyFilters,
+  initialFilters,
+  comingFrom,
+}) => {
+  const [selectedSort, setSelectedSort] = useState("");
+  const [selectedGender, setSelectedGender] = useState("");
+  const [selectedAge, setSelectedAge] = useState("");
+  const [selectedCheckUp, setSelectedCheckup] = useState(null);
+
+  const CHECKUP_TYPES = [
+    { label: "Regular", value: "1" },
+    { label: "Emergency", value: "0" },
+  ];
+
+  useEffect(() => {
+    if (initialFilters) {
+      setSelectedSort(initialFilters.sortOrder || "");
+      setSelectedGender(initialFilters.gender || "");
+      setSelectedAge(initialFilters.ageRange || "");
+      setSelectedCheckup(initialFilters.checkupType || "");
+    }
+  }, [initialFilters]);
+
+  const handleApplyFilter = () => {
+    const filters = {
+      sortOrder: selectedSort,
+      gender: selectedGender,
+      ageRange: selectedAge,
+      checkupType: selectedCheckUp,
+    };
+
+    applyFilters(filters);
+    rbSheetRef.current.close();
+  };
+
+  const handleClearFilter = () => {
+    setSelectedSort("");
+    setSelectedGender("");
+    setSelectedAge("");
+    setSelectedCheckup(null);
+
+    applyFilters({
+      sortOrder: "",
+      gender: "",
+      ageRange: "",
+      checkupType: "",
+    });
+
+    rbSheetRef.current.close();
+  };
+
+  const renderButtons = (data, selectedValue, setSelectedValue) =>
+    data.map((item) => (
+      <TouchableOpacity
+        key={item.value || item}
+        onPress={() => setSelectedValue(item?.value)}
+        style={[
+          styles.filterButton,
+          selectedValue === (item.value || item)
+            ? styles.activeButton
+            : styles.inactiveButton,
+        ]}
+      >
+        <Text
+          style={[
+            styles.filterOptionText,
+            selectedValue === (item.value || item) && styles.activeButtonText,
+          ]}
+        >
+          {item.label || `${item} Years`}
+        </Text>
+      </TouchableOpacity>
+    ));
+
   return (
-    <>
-    <View style={styles.overlay} />
-    <View style={styles.filterContainer}>
+    <View style={styles.container}>
       {/* Header */}
       <View style={styles.innerView}>
         <Text></Text>
         <Text style={styles.headerText}>Filter</Text>
-        <TouchableOpacity onPress={onClose}>
+        <TouchableOpacity onPress={() => rbSheetRef.current.close()}>
           <AntDesign
             name="close"
-            size={responsiveFontSize(30)}
+            size={moderateScale(25)}
             color={Colors.Black}
           />
         </TouchableOpacity>
       </View>
-      <View style={styles.seprator} />
+      <View style={styles.separator} />
+
       {/* Content */}
-      <ScrollView showsVerticalScrollIndicator={false} style={styles.scrollView}>
-        {/* Sort  */}
-        <View style={styles.contentHolder}>
-          <Text style={styles.text}>Sort</Text>
-          <View style={styles.filterOptionHolder}>
-            <TouchableOpacity style={styles.filterButton}>
-              <Text style={styles.filterOptionText}>A-Z</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.filterButton}>
-              <Text style={styles.filterOptionText}>Z-A</Text>
-            </TouchableOpacity>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        style={styles.scrollView}
+      >
+        {/* Check-Up Type */}
+        {comingFrom === "appointment" && (
+          <View style={styles.contentHolder}>
+            <Text style={styles.text}>Check-Up</Text>
+            <View style={styles.filterOptionHolder}>
+              {renderButtons(
+                CHECKUP_TYPES,
+                selectedCheckUp,
+                setSelectedCheckup
+              )}
+            </View>
           </View>
-        </View>
-        {/* Gender  */}
-        <View style={styles.contentHolder}>
-          <Text style={styles.text}>Gender</Text>
-          <View style={styles.filterOptionHolder}>
-            <TouchableOpacity style={[styles.filterButton, {width: '30%'}]}>
-              <Text style={styles.filterOptionText}>Female</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.filterButton, {width: '30%'}]}>
-              <Text style={styles.filterOptionText}>Male</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.filterButton, {width: '30%'}]}>
-              <Text style={styles.filterOptionText}>Kid</Text>
-            </TouchableOpacity>
+        )}
+        {/* Sort */}
+        {comingFrom != "appointment" && (
+          <View style={styles.contentHolder}>
+            <Text style={styles.text}>Sort</Text>
+            <View style={styles.filterOptionHolder}>
+              <TouchableOpacity
+                onPress={() => setSelectedSort("DESC")}
+                style={[
+                  styles.filterButton,
+                  selectedSort === "DESC"
+                    ? styles.activeButton
+                    : styles.inactiveButton,
+                ]}
+              >
+                <Text
+                  style={
+                    selectedSort === "DESC"
+                      ? styles.activeButtonText
+                      : styles.filterOptionText
+                  }
+                >
+                  Z-A
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setSelectedSort("ASC")}
+                style={[
+                  styles.filterButton,
+                  selectedSort === "ASC"
+                    ? styles.activeButton
+                    : styles.inactiveButton,
+                ]}
+              >
+                <Text
+                  style={
+                    selectedSort === "ASC"
+                      ? styles.activeButtonText
+                      : styles.filterOptionText
+                  }
+                >
+                  A-Z
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-        {/* Age Range  */}
+        )}
+
+        {/* Gender */}
+        {comingFrom != "appointment" && (
+          <View style={styles.contentHolder}>
+            <Text style={styles.text}>Gender</Text>
+            <View style={styles.filterOptionHolder}>
+              <TouchableOpacity
+                onPress={() => setSelectedGender("female")}
+                style={[
+                  styles.filterButton,
+                  selectedGender === "female"
+                    ? styles.activeButton
+                    : styles.inactiveButton,
+                  { width: "30%" },
+                ]}
+              >
+                <Text
+                  style={
+                    selectedGender === "female"
+                      ? styles.activeButtonText
+                      : styles.filterOptionText
+                  }
+                >
+                  Female
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setSelectedGender("male")}
+                style={[
+                  styles.filterButton,
+                  selectedGender === "male"
+                    ? styles.activeButton
+                    : styles.inactiveButton,
+                  { width: "30%" },
+                ]}
+              >
+                <Text
+                  style={
+                    selectedGender === "male"
+                      ? styles.activeButtonText
+                      : styles.filterOptionText
+                  }
+                >
+                  Male
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setSelectedGender("Kid")}
+                style={[
+                  styles.filterButton,
+                  selectedGender === "Kid"
+                    ? styles.activeButton
+                    : styles.inactiveButton,
+                  { width: "30%" },
+                ]}
+              >
+                <Text
+                  style={
+                    selectedGender === "Kid"
+                      ? styles.activeButtonText
+                      : styles.filterOptionText
+                  }
+                >
+                  Kid
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+
+        {/* Age Range */}
         <View style={styles.contentHolder}>
           <Text style={styles.text}>Age Range</Text>
           <View
-            style={[styles.filterOptionHolder, {flexWrap: 'wrap', gap: 10}]}>
-            <TouchableOpacity style={[styles.filterButton, {width: '30%'}]}>
-              <Text
+            style={[styles.filterOptionHolder, { flexWrap: "wrap", gap: 10 }]}
+          >
+            {[
+              "0-10",
+              "10-20",
+              "20-30",
+              "30-40",
+              "40-50",
+              "50-60",
+              "60-70",
+              "70-100",
+            ].map((range) => (
+              <TouchableOpacity
+                key={range}
+                onPress={() => setSelectedAge(range)}
                 style={[
-                  styles.filterOptionText,
-                  {fontSize: responsiveFontSize(15)},
-                ]}>
-                0-10 Years
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.filterButton, {width: '30%'}]}>
-              <Text
-                style={[
-                  styles.filterOptionText,
-                  {fontSize: responsiveFontSize(15)},
-                ]}>
-                10-20 Years
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.filterButton, {width: '30%'}]}>
-              <Text
-                style={[
-                  styles.filterOptionText,
-                  {fontSize: responsiveFontSize(15)},
-                ]}>
-                20-30 Years
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.filterButton, {width: '30%'}]}>
-              <Text
-                style={[
-                  styles.filterOptionText,
-                  {fontSize: responsiveFontSize(15)},
-                ]}>
-                30-40 Years
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.filterButton, {width: '30%'}]}>
-              <Text
-                style={[
-                  styles.filterOptionText,
-                  {fontSize: responsiveFontSize(15)},
-                ]}>
-                40-50 Years
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.filterButton, {width: '30%'}]}>
-              <Text
-                style={[
-                  styles.filterOptionText,
-                  {fontSize: responsiveFontSize(15)},
-                ]}>
-                50-60 Years
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.filterButton, {width: '30%'}]}>
-              <Text
-                style={[
-                  styles.filterOptionText,
-                  {fontSize: responsiveFontSize(15)},
-                ]}>
-                60-70 Years
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.filterButton, {width: '30%'}]}>
-              <Text
-                style={[
-                  styles.filterOptionText,
-                  {fontSize: responsiveFontSize(15)},
-                ]}>
-                70 Above
-              </Text>
-            </TouchableOpacity>
+                  styles.filterButton,
+                  selectedAge === range
+                    ? styles.activeButton
+                    : styles.inactiveButton,
+                  { width: "30%" },
+                ]}
+              >
+                <Text
+                  style={[
+                    selectedAge === range
+                      ? styles.activeButtonText
+                      : styles.filterOptionText,
+                    { fontSize: textScale(14) },
+                  ]}
+                >
+                  {range} Yr
+                </Text>
+              </TouchableOpacity>
+            ))}
           </View>
         </View>
-        <View style={styles.seprator} />
-        {/* Lower Button */}
-        <View style={styles.buttonHolder}>
-          <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttontext}>Apply</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
+      </ScrollView>
+
+      <View style={styles.separator} />
+
+      {/* Lower Buttons */}
+      <View style={styles.buttonHolder}>
+        <TouchableOpacity
+          onPress={handleApplyFilter}
+          activeOpacity={0.9}
+          style={styles.button}
+        >
+          <Text style={styles.buttontext}>Apply</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          activeOpacity={0.9}
+          style={[
+            styles.button,
+            {
+              backgroundColor: Colors.White,
+              borderColor: Colors.MediumGrey,
+            },
+          ]}
+          onPress={handleClearFilter}
+        >
+          <Text
             style={[
-              styles.button,
-              {backgroundColor: Colors.White, borderColor: Colors.MediumGrey},
-            ]} onPress={onClose}>
-            <Text style={[styles.buttontext, {color: Colors.Black}]}>
-              Cancle
-            </Text>
-          </TouchableOpacity>
-        </View>
-        </ScrollView>
+              styles.buttontext,
+              { color: Colors.Black, fontFamily: FontFamily.P_400 },
+            ]}
+          >
+            Clear
+          </Text>
+        </TouchableOpacity>
       </View>
-    </>
+    </View>
   );
 };
 
 export default PatientsFilter;
 
 const styles = StyleSheet.create({
-  overlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  filterContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
+  container: {
+    flex: 1,
     backgroundColor: Colors.White,
-    borderTopLeftRadius: responsivePadding(10),
-    borderTopRightRadius: responsivePadding(10),
-    elevation: responsivePadding(5),
-    alignItems: 'center',
-    height: '100%', // Set the height to 50% of the screen
-    maxHeight: '75%', // Set the max height to 50% of the screen
-    overflow: 'hidden', // Hide overflow content
   },
   innerView: {
-    width: '90%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: responsivePadding(10),
-    paddingHorizontal: responsivePadding(10),
+    width: "90%",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: moderateScaleVertical(10),
+    paddingHorizontal: moderateScale(10),
   },
   headerText: {
-    fontSize: responsiveFontSize(24),
+    fontSize: textScale(18),
     color: Colors.Tertiary,
+    alignSelf: "center",
   },
-  seprator: {
-    width: '100%',
-    borderWidth: 1,
+  separator: {
+    width: "100%",
+    borderWidth: 0.3,
     borderColor: Colors.MediumGrey,
-    backgroundColor: Colors.MediumGrey,
   },
   scrollView: {
-    width: '100%',
-    flex: 1, // Take remaining space
+    width: "100%",
+    flex: 1,
   },
   text: {
-    fontSize: responsiveFontSize(20),
-    fontWeight: '600',
+    fontSize: textScale(14),
+    fontFamily: FontFamily.P_500,
     color: Colors.MediumGrey,
   },
   contentHolder: {
-    marginTop: 0,
-    width: '95%',
-    padding: responsivePadding(10),
-  },
-  filterOptionText: {
-    fontSize: responsiveFontSize(18),
-    color: Colors.Tertiary,
-    fontWeight: '400',
+    width: "95%",
+    padding: moderateScale(10),
+    alignSelf: "center",
   },
   filterOptionHolder: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginVertical: responsivePadding(10),
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginVertical: moderateScaleVertical(10),
   },
   filterButton: {
-    borderWidth: responsivePadding(2),
-    width: '45%',
-    alignItems: 'center',
-    padding: responsivePadding(10),
-    borderRadius: responsivePadding(10),
+    borderWidth: moderateScale(2),
+    width: "45%",
+    alignItems: "center",
+    padding: moderateScale(10),
+    borderRadius: moderateScale(10),
   },
   button: {
-    borderWidth: responsivePadding(2),
-    width: '40%',
-    padding: responsivePadding(10),
-    borderRadius: responsivePadding(10),
-    alignItems: 'center',
+    borderWidth: moderateScale(2),
+    width: "40%",
+    padding: moderateScale(10),
+    borderRadius: moderateScale(10),
+    alignItems: "center",
     borderColor: Colors.Primary,
     backgroundColor: Colors.Primary,
   },
   buttontext: {
     color: Colors.White,
-    fontWeight: '600',
-    fontSize: responsiveFontSize(20),
+    fontFamily: FontFamily.P_600,
+    fontSize: textScale(14),
   },
   buttonHolder: {
-    padding: responsivePadding(10),
-    width: '95%',
-    marginVertical: responsivePadding(10),
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    padding: moderateScale(10),
+    width: "95%",
+    marginVertical: moderateScaleVertical(10),
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  activeButton: {
+    backgroundColor: Colors.LightGrey,
+    borderColor: Colors.Primary,
+  },
+  activeButtonText: {
+    color: Colors.Primary,
+    fontSize: textScale(14),
+    fontFamily: FontFamily.P_400,
+  },
+  inactiveButton: {
+    backgroundColor: Colors.LightGrey,
+    borderColor: Colors.LightGrey,
+  },
+  filterOptionText: {
+    fontSize: textScale(14),
+    color: Colors.Black,
+    fontFamily: FontFamily.P_400,
   },
 });

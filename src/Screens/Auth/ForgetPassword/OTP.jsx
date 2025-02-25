@@ -6,97 +6,129 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
 } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import Colors from "../../../Theme/Colors";
-import AntDesign from "react-native-vector-icons/AntDesign";
-import {
-  responsiveFontSize,
-  responsivePadding,
-} from "../../../Theme/Responsive";
 import Title from "../../../Components/ForgetPassword/Title";
 import Button from "../../../Components/General/Button";
 import { useNavigation } from "@react-navigation/native";
-const OTP = () => {
+import {
+  SEND_CODE_ON_EMAIL,
+  VERIFY_OTP,
+} from "../../../API_Services/API_service";
+import {
+  moderateScale,
+  moderateScaleVertical,
+  textScale,
+} from "../../../utils/ResponsiveSize";
+import AuthHeader from "../../../Components/General/AuthHeader";
+const OTP = (props) => {
   const navigation = useNavigation();
-  const otpLength = 4;
+  const otpLength = 6;
   const [otpArray, setOtpArray] = useState(Array(otpLength).fill(""));
   const [remainingTime, setRemainingTime] = useState(30);
   const [showResendButton, setShowResendButton] = useState(false);
   const [showError, setShowError] = useState(false);
   const [showErrorText, setShowErrorText] = useState("");
 
+  const refArray = useRef(Array(otpLength).fill(null).map(() => React.createRef()));
+
+  useEffect(() => {
+    refArray.current[0]?.current.focus();
+  }, []);
+
   const VerifyOtp = () => {
-    const otp = otpArray.join("");
-    if (otp.trim() === "") {
+    const otp = otpArray?.join("") || "";
+    if (!otp.trim()) {
       setShowError(true);
-      setShowErrorText("Please enter 4 digit code !");
+      setShowErrorText("Please enter 6 digit code!");
       return;
     }
-    if (otp.length < 4) {
+    if (otp.length < otpLength) {
       setShowError(true);
-      setShowErrorText("Enter exact 4 digit code!");
+      setShowErrorText("Enter exact 6 digit code!");
       return;
     }
-    navigation.navigate("Create Password");
+    verifyOtpOnEmail();
   };
+
+  const verifyOtpOnEmail = async () => {
+    const otpDetails = {
+      email_address: props.route.params.email,
+      otp: otpArray.join(""),
+    };
+    try {
+      const response = await VERIFY_OTP(otpDetails);
+      if (response?.success) {
+        setOtpArray(Array(otpLength).fill(""));
+        navigation.navigate("Create Password", {
+          passedEmail: props.route.params.email,
+        });
+      } else {
+        setShowError(true);
+        setShowErrorText("Invalid OTP");
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // const verifyOtpOnEmail = async () => {
+  //   // navigation.navigate("Create Password", {
+  //   //   passedEmail: props.route.params.email,
+  //   // });
+  //   const otpDetails = {
+  //     email_address: props.route.params.email,
+  //     otp: otpSet,
+  //   };
+  //   console.log(otpDetails);
+  //   try {
+  //     const response = await VERIFY_OTP(otpDetails);
+  //     console.log("Server Response:", response);
+  //     if (response?.success) {
+  //       setOtpArray('')
+  //       navigation.navigate("Create Password", {
+  //         passedEmail: props.route.params.email,
+  //       });
+  //     } else {
+  //       setShowError(true);
+  //       setShowErrorText("Invalid OTP");
+  //     }
+  //   } catch (e) {
+  //     console.log(e);
+  //   }finally{
+  //     setOtpArray(Array(otpLength).fill(""));
+  //   }
+  // };
 
   useEffect(() => {
     const otp = otpArray.join("");
-    if (otp.length === 4) {
+    if (otp.length === 6) {
       setShowError(false);
       setShowErrorText("");
     }
   }, [otpArray]);
 
-  const onSubmit = async () => {
-    const otp = otpArray.join("");
-    if (
-      otp.length === otpLength &&
-      otpArray.every((element) => element.trim() !== "")
-    ) {
-      try {
-        const formData = {
-          otp: otp,
-          email_address: email,
-        };
-        const response = await verifyOtp(formData);
-        console.log(response, "Line 46");
-        if (response.success) {
-          Alert.alert("Success", response.message);
-          navigation.replace("NewPassword", { email });
-          setOtpArray(Array(otpLength).fill(""));
-        } else {
-          Alert.alert(
-            "Error",
-            response.message || "Failed to verify OTP. Please try again."
-          );
-        }
-      } catch (error) {
-        Alert.alert("Error", "Something went wrong. Please try again later.");
-      }
-    } else {
-      Alert.alert("Invalid OTP", "Please enter a valid 6-digit OTP.");
-    }
-  };
   const resendOtp = async () => {
     try {
-      const response = await fetch(`${serverAddress}/member/forgot/password`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email_address: email }),
+      const response = await SEND_CODE_ON_EMAIL({
+        email_address: props.route.params.email,
       });
-
-      const responseData = await response.json();
-      if (response.ok && responseData.success) {
-        Alert.alert("Success", "OTP resend successfully");
-        setRemainingTime(30);
-        setShowResendButton(false);
-      } else {
-        Alert.alert("Error", responseData.message);
+      console.log("Server Response:", response);
+      if (response && response?.data) {
+        Alert.alert("Success!", "OTP resend Successfully!!");
       }
-    } catch (error) {
-      Alert.alert("Error", "Something went wrong, please try again.");
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setShowError(false);
+      setShowErrorText("");
+      setOtpArray(Array(otpLength).fill(""));
+      refArray.current[0].current.focus();
     }
   };
 
@@ -113,7 +145,6 @@ const OTP = () => {
     return () => clearInterval(interval);
   }, [remainingTime]);
 
-  const refArray = useRef(otpArray.map(() => React.createRef()));
 
   const handleOtpChange = (index, value) => {
     const otpCopy = [...otpArray];
@@ -153,47 +184,54 @@ const OTP = () => {
     <>
       <SafeAreaView style={styles.safeView} />
       <StatusBar backgroundColor={Colors.White} barStyle={"dark-content"} />
-      <View style={styles.main}>
-        <TouchableOpacity
-          style={{
-            marginTop: responsivePadding(50),
-            marginHorizontal: responsivePadding(30),
+      <AuthHeader title={"OTP Verification"} />
+      <KeyboardAvoidingView
+        style={styles.main}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <ScrollView
+          contentContainerStyle={{
+            flexGrow: 1,
+            gap: moderateScaleVertical(10),
+            width: "95%",
+            alignSelf: "center",
           }}
-          onPress={() => navigation.goBack()}
         >
-          <AntDesign
-            name="arrowleft"
-            size={responsiveFontSize(30)}
-            color={Colors.Black}
-          />
-        </TouchableOpacity>
-        <Title
-          heading={"OTP Verification"}
-          subHeading={
-            "Enter the verification code we just sent on your email address.."
-          }
-        />
-        <View style={styles.otpContainer}>{renderInputs()}</View>
-        {showError && (
-          <View style={styles.errorHolder}>
-            <Text style={styles.errorText}>{showErrorText}</Text>
+          <View style={styles.main}>
+            <View style={{ marginTop: moderateScaleVertical(25) }}>
+              <Title
+                heading={"OTP Verification"}
+                subHeading={
+                  "Enter the verification code we just sent on your email address.."
+                }
+              />
+            </View>
+            <View style={styles.otpContainer}>{renderInputs()}</View>
+            {showError && (
+              <View style={styles.errorHolder}>
+                <Text style={styles.errorText}>{showErrorText}</Text>
+              </View>
+            )}
+            <View style={{ marginTop: moderateScaleVertical(20) }}>
+              {showResendButton ? (
+                <TouchableOpacity
+                  onPress={resendOtp}
+                  style={styles.resendButton}
+                >
+                  <Text style={styles.resendButtonText}>Resend OTP</Text>
+                </TouchableOpacity>
+              ) : (
+                <Text style={styles.timerText}>
+                  Resend OTP in {remainingTime} sec
+                </Text>
+              )}
+            </View>
+            <View style={styles.buttonHolder}>
+              <Button title={"Verify"} handleAction={VerifyOtp} />
+            </View>
           </View>
-        )}
-        <View style={{ marginTop: responsivePadding(20) }}>
-          {showResendButton ? (
-            <TouchableOpacity onPress={resendOtp} style={styles.resendButton}>
-              <Text style={styles.resendButtonText}>Resend OTP</Text>
-            </TouchableOpacity>
-          ) : (
-            <Text style={styles.timerText}>
-              Resend OTP in {remainingTime} sec
-            </Text>
-          )}
-        </View>
-        <View style={styles.buttonHolder}>
-          <Button title={"Verify"} handleAction={VerifyOtp} />
-        </View>
-      </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </>
   );
 };
@@ -209,7 +247,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.White,
   },
   buttonHolder: {
-    marginTop: responsivePadding(10),
+    marginTop: moderateScaleVertical(10),
     width: "90%",
     alignItems: "center",
     alignSelf: "center",
@@ -217,43 +255,43 @@ const styles = StyleSheet.create({
   otpContainer: {
     flexDirection: "row",
     justifyContent: "space-evenly",
-    marginTop: responsivePadding(20),
+    marginTop: moderateScaleVertical(20),
   },
   otpBox: {
-    width: responsivePadding(40),
-    height: responsivePadding(40),
-    borderWidth: responsivePadding(1),
+    width: moderateScale(50),
+    height: moderateScale(50),
+    borderWidth: moderateScale(1),
     textAlign: "center",
-    fontSize: responsiveFontSize(18),
-    color: Colors.Black,
-    borderRadius: responsivePadding(5),
+    fontSize: textScale(18),
+    color: Colors.MediumGrey,
+    borderRadius: moderateScale(5),
   },
   timerText: {
     textAlign: "center",
     color: Colors.LightGrey,
-    fontSize: responsiveFontSize(16),
+    fontSize: textScale(16),
   },
   resendButton: {
     backgroundColor: Colors.LightGrey,
-    padding: responsivePadding(15),
-    borderRadius: responsivePadding(10),
+    padding: moderateScale(15),
+    borderRadius: moderateScale(10),
     width: "90%",
     alignSelf: "center",
   },
   resendButtonText: {
     color: Colors.iconColor,
     textAlign: "center",
-    fontSize: responsiveFontSize(16),
+    fontSize: textScale(16),
     fontWeight: "600",
   },
   errorHolder: {
-    marginHorizontal: responsivePadding(25),
-    padding: responsivePadding(10),
-    marginTop: responsivePadding(10),
+    padding: moderateScale(10),
+    marginTop: moderateScaleVertical(10),
   },
   errorText: {
-    fontSize: responsiveFontSize(16),
-    fontWeight: "400",
+    fontSize: textScale(16),
+    fontWeight: "500",
     color: Colors.CrimsonRed,
+    textTransform: "capitalize",
   },
 });

@@ -1,11 +1,11 @@
-import { StyleSheet, Text, TouchableOpacity, } from 'react-native'
+import { Pressable, StyleSheet, Text, TouchableOpacity, } from 'react-native'
 import React from 'react'
 import { responsiveFontSize, responsivePadding } from '../../Theme/Responsive'
 import Colors from '../../Theme/Colors'
 
 const Button = ({title,handleAction}) => {
   return (
-    <TouchableOpacity onPress={() => handleAction()} style={styles.buttonHolder}>
+    <TouchableOpacity activeOpacity={0.9} onPress={() => handleAction()} style={styles.buttonHolder}>
       <Text style={styles.buttonText}>{title}</Text>
     </TouchableOpacity>
   )

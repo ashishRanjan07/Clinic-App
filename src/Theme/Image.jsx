@@ -21,6 +21,8 @@ const images = {
   ProfileInactive:require('../Assets/Images/BottomLogo/Inactive/ProfileInactive.png'),
   appIcon:require('../Assets/Images/appicon.png'),
   checkUp:require('../Assets/Images/checkUpText.png'),
+  male:require('../Assets/Images/male.png'),
+  female:require('../Assets/Images/female.png'),
 }
 
 

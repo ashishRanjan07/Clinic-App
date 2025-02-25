@@ -139,7 +139,7 @@ const EditAppointment = ({ route }) => {
           {/* Button */}
           <View style={{ width: "80%", alignSelf: "center", marginBottom: 20 }}>
             <Button
-              title={"Book Appointment"}
+              title={"Save Appointment"}
               handleAction={handleAppointment}
             />
           </View>

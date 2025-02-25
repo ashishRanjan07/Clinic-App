@@ -1,5 +1,7 @@
 import {
   Image,
+  KeyboardAvoidingView,
+  Platform,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -11,8 +13,9 @@ import Colors from "../../../Theme/Colors";
 import { responsivePadding } from "../../../Theme/Responsive";
 import HeaderImage from "../../../Components/Login/HeaderImage";
 import LoginTitle from "../../../Components/Login/LoginTitle";
-import LoginForm from "../../../Components/Login/LoginForm";
 import { useNavigation } from "@react-navigation/native";
+import LoginForm from "../../../Components/Login/LoginForm";
+import { moderateScaleVertical } from "../../../utils/ResponsiveSize";
 
 const Login = () => {
   const navigation = useNavigation();
@@ -21,15 +24,18 @@ const Login = () => {
     <>
       <SafeAreaView style={styles.safeView} />
       <StatusBar barStyle={"dark-content"} backgroundColor={Colors.White} />
-      <View style={styles.main}>
-        <ScrollView style={styles.scrollArea}>
-          <View style={{ marginVertical: responsivePadding(50) }}>
+      <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          style={styles.keyboardAvoidingView}
+        >
+        <ScrollView style={styles.scrollArea} showsVerticalScrollIndicator={false}>
+          <View style={{ marginVertical: moderateScaleVertical(50) }}>
             <HeaderImage />
           </View>
           <LoginTitle />
           <LoginForm />
         </ScrollView>
-      </View>
+     </KeyboardAvoidingView>
     </>
   );
 };
@@ -37,11 +43,11 @@ const Login = () => {
 export default Login;
 
 const styles = StyleSheet.create({
-  main: {
-    flex: 1,
-    backgroundColor: Colors.White,
-  },
   safeView: {
     backgroundColor: Colors.White,
+  },
+  keyboardAvoidingView: {
+    flex: 1,
+    backgroundColor:Colors.White
   },
 });

@@ -4,15 +4,16 @@ import { responsiveFontSize, responsivePadding } from '../../Theme/Responsive'
 import Colors from '../../Theme/Colors'
 import AntDesign from 'react-native-vector-icons/AntDesign';
 const HeaderView = () => {
+   
   return (
     <View style={styles.headerView}>
         <View style={{flexDirection:'row',alignItems:'center',gap:responsivePadding(20),width:'50%',justifyContent:'flex-start'}}>
             {/* <AntDesign name="arrowleft" size={responsiveFontSize(30)} color={Colors.Tertiary}/> */}
             <Text style={styles.text}>Payments</Text>
         </View>
-        <TouchableOpacity style={styles.downloadStatement}>
-            <Text style={styles.downloadStatementText}>Download Statements</Text>
-        </TouchableOpacity>
+        {/* <TouchableOpacity onPress={handleDownload} style={styles.downloadStatement}>
+            <Text style={styles.downloadStatementText}>Download Statement</Text>
+        </TouchableOpacity> */}
     </View>
   )
 }
@@ -42,6 +43,6 @@ const styles = StyleSheet.create({
     downloadStatementText:{
         color:Colors.Black,
         fontSize:responsiveFontSize(16),
-        fontWeight:'600'
+        fontWeight:'400'
     }
 })

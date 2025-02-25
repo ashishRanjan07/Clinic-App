@@ -9,7 +9,7 @@
         "payments": [
           {
             "payment_method": "UPI",
-            "amount": 100.50,
+            "amount": 100,
             "date": "2024-04-09",
             "time": "15:30:00",
             "transaction_id": "ABCD123456789",
@@ -20,7 +20,7 @@
           },
           {
             "payment_method": "Credit Card",
-            "amount": 50.25,
+            "amount": 500,
             "date": "2024-04-10",
             "time": "11:15:00",
             "transaction_id": "EFGH987654321",
@@ -40,8 +40,8 @@
         "profile_image": "jane_smith_profile.jpg",
         "payments": [
           {
-            "payment_method": "Debit Card",
-            "amount": 75.25,
+            "payment_method": "Debit",
+            "amount": 750,
             "date": "2024-04-08",
             "time": "10:45:00",
             "transaction_id": "JKLM456789012",
@@ -53,7 +53,7 @@
           },
           {
             "payment_method": "UPI",
-            "amount": 150.75,
+            "amount": 1500,
             "date": "2024-04-11",
             "time": "14:20:00",
             "transaction_id": "NOPQ345678901",
@@ -72,8 +72,8 @@
         "profile_image": "alice_johnson_profile.jpg",
         "payments": [
           {
-            "payment_method": "Other Method",
-            "amount": 200.00,
+            "payment_method": "Other",
+            "amount": 200,
             "date": "2024-04-09",
             "time": "09:00:00",
             "transaction_id": "RSTU234567890",
@@ -92,7 +92,7 @@
         "payments": [
           {
             "payment_method": "UPI",
-            "amount": 120.00,
+            "amount": 120,
             "date": "2024-04-10",
             "time": "12:30:00",
             "transaction_id": "VWXY567890123",
@@ -103,7 +103,7 @@
           },
           {
             "payment_method": "Credit Card",
-            "amount": 85.50,
+            "amount": 850,
             "date": "2024-04-12",
             "time": "16:45:00",
             "transaction_id": "ZABC678901234",
@@ -123,8 +123,30 @@
         "profile_image": "emily_wilson_profile.jpg",
         "payments": [
           {
-            "payment_method": "Debit Card",
-            "amount": 60.75,
+            "payment_method": "Debit",
+            "amount": 600,
+            "date": "2024-04-08",
+            "time": "14:00:00",
+            "transaction_id": "DEFG789012345",
+            "additional_details": {
+              "card_type": "Maestro",
+              "card_number": "**** **** **** 3456",
+              "expiry_date": "10/25"
+            }
+          }
+        ]
+      },
+
+      {
+        "sender_name": "John Wick",
+        "age": 32,
+        "mobile_number": "7890123456",
+        "gender": "Female",
+        "profile_image": "emily_wilson_profile.jpg",
+        "payments": [
+          {
+            "payment_method": "Debit",
+            "amount": 600,
             "date": "2024-04-08",
             "time": "14:00:00",
             "transaction_id": "DEFG789012345",

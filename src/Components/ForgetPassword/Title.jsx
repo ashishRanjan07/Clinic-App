@@ -16,17 +16,17 @@ export default Title;
 
 const styles = StyleSheet.create({
   titleHolder: {
-    margin: responsivePadding(30),
+    margin: responsivePadding(15),
     gap: responsivePadding(10),
   },
   heading: {
-    fontSize: responsiveFontSize(28),
+    fontSize: responsiveFontSize(25),
     fontWeight: '600',
     color: Colors.Black,
   },
   subHeading: {
     fontSize: responsiveFontSize(16),
     color: Colors.MediumGrey,
-    fontWeight: '600',
+    fontWeight: '400',
   },
 });

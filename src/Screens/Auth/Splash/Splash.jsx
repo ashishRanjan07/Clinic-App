@@ -1,35 +1,50 @@
-import { Image, StatusBar, StyleSheet, Text, View } from "react-native";
-import React, { useEffect } from "react";
+import { Animated, Image, StatusBar, StyleSheet, View } from "react-native";
+import React, { useEffect, useRef } from "react";
 import Colors from "../../../Theme/Colors";
 import { responsivePadding } from "../../../Theme/Responsive";
 import images from "../../../Theme/Image";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+
 const Splash = () => {
   const navigation = useNavigation();
+  const scaleAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    AsyncStorage.getItem("loginData").then((loginData) => {
-      if (loginData) {
-        navigation.push("Bottom Navigation", {
-          loginData: JSON.parse(loginData),
-        });
-      } else {
+    Animated.timing(scaleAnim, {
+      toValue: 1, 
+      duration: 2000, 
+      useNativeDriver: false, 
+    }).start();
+
         const timer = setTimeout(() => {
           navigation.replace("Welcome");
         }, 3000);
         return () => clearTimeout(timer);
-      }
-    });
-  }, [navigation]);
+      
+    
+  }, [navigation, scaleAnim]);
+
+  
+  const imageStyle = {
+    width: scaleAnim.interpolate({
+      inputRange: [0, 1],
+      outputRange: [100, 250], 
+    }),
+    height: scaleAnim.interpolate({
+      inputRange: [0, 1],
+      outputRange: [100, 250], 
+    }),
+  };
+
   return (
     <View style={styles.main}>
       <StatusBar backgroundColor={Colors.Primary} barStyle={"dark-content"} />
       <View style={styles.container}>
-        <Image
+        <Animated.Image
           source={images.splash_Screen}
           resizeMode="contain"
-          style={styles.imageStyle}
+          style={[styles.imageStyle, imageStyle]}
         />
       </View>
     </View>
@@ -47,9 +62,5 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-  },
-  imageStyle: {
-    width: "80%",
-    height: responsivePadding(200),
   },
 });

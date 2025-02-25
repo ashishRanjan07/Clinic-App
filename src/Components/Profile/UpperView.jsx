@@ -5,7 +5,7 @@ import {responsiveFontSize, responsivePadding} from '../../Theme/Responsive';
 import Colors from '../../Theme/Colors';
 
 const UpperView = ({ userData }) => {
-  console.log(userData,"Line 8")
+
   return (
     <View style={styles.upperProfile}>
       <Image

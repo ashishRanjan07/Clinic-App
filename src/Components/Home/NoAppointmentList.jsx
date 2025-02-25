@@ -4,7 +4,7 @@ import images from '../../Theme/Image'
 import { responsiveFontSize, responsivePadding } from '../../Theme/Responsive'
 import Colors from '../../Theme/Colors'
 
-const NoAppointmentList = () => {
+const NoAppointmentList = ({title}) => {
   return (
     <View style={styles.noAppointment}>
     <Image
@@ -12,7 +12,7 @@ const NoAppointmentList = () => {
       resizeMode="contain"
       style={styles.imageStyle}
     />
-    <Text style={styles.text}>No appointment yet!!</Text>
+    <Text style={styles.text}>{title || ""}</Text>
   </View>
   )
 }
@@ -21,7 +21,8 @@ export default NoAppointmentList
 
 const styles = StyleSheet.create({
     noAppointment: {
-        justifyContent: 'center',
+        // justifyContent: 'center',
+        marginTop:responsivePadding(70),
         alignItems: 'center',
         flex: 1,
         // height:'100%'

@@ -1,37 +1,56 @@
-import React, {useState} from 'react';
+import React, { useState } from "react";
 import {
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
-} from 'react-native';
-import AntDesign from 'react-native-vector-icons/AntDesign';
-import Fontisto from 'react-native-vector-icons/Fontisto';
-import Colors from '../../Theme/Colors';
-import {responsiveFontSize, responsivePadding} from '../../Theme/Responsive';
+} from "react-native";
+import AntDesign from "react-native-vector-icons/AntDesign";
+import SimpleLineIcons from "react-native-vector-icons/SimpleLineIcons";
+import Colors from "../../Theme/Colors";
+import { useNavigation } from "@react-navigation/native";
+import {
+  moderateScale,
+  moderateScaleVertical,
+  textScale,
+} from "../../utils/ResponsiveSize";
+import FontFamily from "../../utils/FontFamily";
 
-const PatientsHeader = ({toggleFilter}) => {
-  const [showSearchbar, setShowSearchBar] = useState(false);
+const PatientsHeader = ({
+  toggleFilter,
+  handleSearch,
+  setShowSearchBar,
+  showSearchbar,
+}) => {
+  const navigation = useNavigation();
+
   return (
     <>
       <View style={styles.headerHolder}>
-        <TouchableOpacity style={styles.touchHolder}>
-          <AntDesign name="arrowleft" size={30} color={Colors.Tertiary} />
+        <View style={styles.touchHolder}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <AntDesign
+              name="arrowleft"
+              size={textScale(30)}
+              color={Colors.Tertiary}
+            />
+          </TouchableOpacity>
           <Text style={styles.text}>Patients List</Text>
-        </TouchableOpacity>
+        </View>
+
         <View style={styles.searchView}>
           <TouchableOpacity onPress={() => setShowSearchBar(!showSearchbar)}>
             <AntDesign
               name="search1"
-              size={responsiveFontSize(30)}
+              size={moderateScale(30)}
               color={Colors.Black}
             />
           </TouchableOpacity>
           <TouchableOpacity onPress={toggleFilter}>
-            <Fontisto
+            <SimpleLineIcons
               name="equalizer"
-              size={responsiveFontSize(20)}
+              size={moderateScale(30)}
               color={Colors.Black}
             />
           </TouchableOpacity>
@@ -40,13 +59,15 @@ const PatientsHeader = ({toggleFilter}) => {
       {showSearchbar && (
         <View style={styles.searchHolder}>
           <TextInput
-            placeholder="Search Patinets by name and No"
+          autoFocus={true}
+            placeholder="Search Patients by name and No"
             placeholderTextColor={Colors.MediumGrey}
             style={styles.textInputHolder}
+            onChangeText={handleSearch}
           />
           <AntDesign
             name="search1"
-            size={responsiveFontSize(30)}
+            size={moderateScale(30)}
             color={Colors.MediumGrey}
           />
         </View>
@@ -59,46 +80,47 @@ export default PatientsHeader;
 
 const styles = StyleSheet.create({
   touchHolder: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: responsivePadding(20),
+    flexDirection: "row",
+    alignItems: "center",
+    gap: moderateScale(10),
+    paddingTop: moderateScaleVertical(10),
   },
   headerHolder: {
-    width: '95%',
-    alignSelf: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingBottom: responsivePadding(10),
+    width: "95%",
+    alignSelf: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingBottom: moderateScaleVertical(10),
   },
   searchView: {
-    flexDirection: 'row',
-    gap: responsivePadding(30),
-    alignItems: 'center',
-    marginRight: responsivePadding(10),
+    flexDirection: "row",
+    gap: moderateScale(30),
+    alignItems: "center",
+    marginRight: moderateScale(10),
   },
   text: {
-    fontSize: responsiveFontSize(20),
-    fontWeight: '600',
+    fontSize: textScale(16),
+    fontFamily: FontFamily.P_600,
     color: Colors.Tertiary,
   },
   textInputHolder: {
-    fontSize: responsiveFontSize(18),
-    fontVariant: '600',
-    color: Colors.Black,
-    width: '90%',
+    fontSize: textScale(12),
+    fontFamily: FontFamily.P_400,
+    color: Colors.MediumGrey,
+    width: "90%",
   },
   searchHolder: {
     borderWidth: 2,
-    width: '95%',
-    alignSelf: 'center',
-    marginTop: responsivePadding(10),
-    paddingLeft: responsivePadding(10),
-    padding: responsivePadding(10),
-    borderRadius: responsivePadding(10),
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
+    width: "95%",
+    alignSelf: "center",
+    marginTop: moderateScaleVertical(10),
+    paddingLeft: moderateScale(10),
+    padding: moderateScale(10),
+    borderRadius: moderateScale(10),
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
     backgroundColor: Colors.White,
     borderColor: Colors.White,
   },

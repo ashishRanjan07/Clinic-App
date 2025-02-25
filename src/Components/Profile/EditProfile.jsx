@@ -31,6 +31,7 @@ const EditProfile = ({ route }) => {
   };
   const CancelProfile = () => {
     console.log("Cancel Profile");
+    navigation.goBack()
   };
   return (
     <>

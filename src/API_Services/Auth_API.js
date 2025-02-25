@@ -4,6 +4,7 @@ import {
   CREATE_APPOINTMENT2,
   CREATE_PATIENTS_REPORT,
   CREATE_PRESCRIPTION,
+  GET_ALL_APPOINTMENTS,
   GET_ALL_DOCTOR_LIST,
   GET_ALL_PATIENTS_LIST,
   GET_ALL_STAFF_LIST,
@@ -11,9 +12,16 @@ import {
   GET_APPOINTMENT_BY_PATIENT_ID,
   GET_PATIENTS_REPORT,
   GET_REPORT_FILE,
-  GEt_APPOINtMENT_BY_DATE,
+  GET_APPOINtMENT_BY_DATE,
   MARK_APPOINTMENT_VISITED,
   VALIDATE_LOGIN,
+  SEND_CODE_ON_EMAIL,
+  GET_PRESCRIPTION_BY_PATIENT_ID,
+  UPDATE_PAYMENT_STATUS,
+  GET_APPOINTMENT_FILTER,
+  GET_PATIENTS_BY_CLINIC_ID,
+  UPDATE_APPOINTMENT_STATUS,
+  ADD_PATIENT_APPOINTMENT,
 } from "./API_service";
 
 export const validateLogin = async (data) => {
@@ -92,8 +100,10 @@ export const createAppointment = async (data) => {
 };
 
 export const dateWiseAppointment = async (data) => {
+  console.log("======1111111=============");
+  console.log(data);
   try {
-    const response = await GEt_APPOINtMENT_BY_DATE(data);
+    const response = await GET_APPOINtMENT_BY_DATE(data);
     if (!response) {
       return `Can't connect to server`;
     } else if (response?.error === true) {
@@ -238,5 +248,127 @@ export const createAppontment2 = async (data) => {
     }
   } catch (error) {
     return error.message;
+  }
+};
+
+export const getAllAppointments = async () => {
+  try {
+    const response = await GET_ALL_APPOINTMENTS();
+    if (!response) {
+      return `Can't connect to server`;
+    } else if (response?.error === true) {
+      return response;
+    } else {
+      return response?.allAppointment;
+    }
+  } catch (error) {
+    return error?.message;
+  }
+};
+
+export const sendCodeOnEmail = async (data) => {
+  try {
+    const response = await SEND_CODE_ON_EMAIL(data);
+    if (!response) return `Can't connect to server`;
+    else if (response?.error === true) {
+      return response;
+    } else {
+      return response;
+    }
+  } catch (e) {
+    return e?.message;
+  }
+};
+
+export const getPrescriptionByPatientID = async (id) => {
+  try {
+    const response = await GET_PRESCRIPTION_BY_PATIENT_ID(id);
+    if (!response) {
+      return `Can't connect to server`;
+    } else if (response?.error === true) {
+      return response;
+    } else {
+      return response;
+    }
+  } catch (e) {
+    return e?.message;
+  }
+};
+
+export const updatePaymentStatus = async (data) => {
+  try {
+    const response = await UPDATE_PAYMENT_STATUS(data);
+    if (!response) {
+      return `Can't connect to server`;
+    } else if (response?.error === true) {
+      return response;
+    } else {
+      return response;
+    }
+  } catch (e) {
+    return e?.message;
+  }
+};
+
+export const getFilterAppointment = async (data) => {
+  try {
+    const response = await GET_APPOINTMENT_FILTER(data);
+    if (!response) {
+      return `Can't connect to server`;
+    } else if (response?.error === true) {
+      return response;
+    } else {
+      return response;
+    }
+  } catch (e) {
+    return e?.message;
+  }
+};
+
+export const getPatientsByClinicId =  async(data) =>{
+  try {
+    const response = await GET_PATIENTS_BY_CLINIC_ID(data);
+    if (!response) {
+      return `Can't connect to server`;
+    } else if (response?.error === true) {
+      return response;
+    } else {
+      return response;
+    }
+  } catch (e) {
+    return e?.message;
+  }
+};
+
+
+export const updateAppointmentStatus =  async(data) =>{
+  // console.log(data,"Line 344")
+  try {
+    const response = await UPDATE_APPOINTMENT_STATUS(data);
+    if (!response) {
+      return `Can't connect to server`;
+    } else if (response?.error === true) {
+      return response;
+    } else {
+      return response;
+    }
+  } catch (e) {
+    return e?.message;
+  }
+};
+
+export const addPatientsAppointment =  async(data) =>{
+  // console.log(data,"Line 344")
+  try {
+    const response = await ADD_PATIENT_APPOINTMENT(data);
+    if (!response) {
+      return `Can't connect to server`;
+    } else if (response?.error === true) {
+      return response;
+    } else {
+      return response;
+    }
+  } catch (e) {
+    return e?.message;
   }
 };

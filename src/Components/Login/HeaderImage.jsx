@@ -1,7 +1,7 @@
 import {Image, StyleSheet, Text, View} from 'react-native';
 import React from 'react';
 import images from '../../Theme/Image';
-import {responsivePadding} from '../../Theme/Responsive';
+import { moderateScale, moderateScaleVertical } from '../../utils/ResponsiveSize';
 
 const HeaderImage = () => {
   return (
@@ -19,11 +19,11 @@ export default HeaderImage;
 
 const styles = StyleSheet.create({
   imageHolder: {
-    marginVertical: responsivePadding(20),
+    marginVertical: moderateScaleVertical(20),
     alignItems: 'center',
   },
   imageStyle: {
-    height: responsivePadding(150),
-    width: responsivePadding(115),
+    height: moderateScale(150),
+    width: moderateScale(115),
   },
 });

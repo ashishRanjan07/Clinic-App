@@ -1,17 +1,21 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import Modal from 'react-native-modal';
-import LottieView from 'lottie-react-native';
-import Colors from '../../Theme/Colors';
-import { responsiveFontSize, responsivePadding } from '../../Theme/Responsive';
+import React from "react";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import Modal from "react-native-modal";
+import LottieView from "lottie-react-native";
+import Colors from "../../Theme/Colors";
+import {
+  moderateScale,
+  moderateScaleVertical,
+  textScale,
+} from "../../utils/ResponsiveSize";
 
 const LotifileAlert = ({ visible, onClose, onYes }) => {
-return (
+  return (
     <Modal isVisible={visible}>
       <View style={styles.container}>
         <View style={styles.innerContainer}>
           <LottieView
-            source={require('../../Assets/Animation/Animation - 1713844963044.json')}
+            source={require("../../Assets/Animation/Animation - 1713844963044.json")}
             autoPlay
             loop
             style={styles.animation}
@@ -22,8 +26,20 @@ return (
             <TouchableOpacity style={styles.button} onPress={onYes}>
               <Text style={styles.buttonText}>Yes</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.button,{backgroundColor:"#ffffff",borderWidth:1,borderColor:Colors.MediumGrey}]} onPress={onClose}>
-              <Text style={[styles.buttonText,{color:Colors.Black}]}>No</Text>
+            <TouchableOpacity
+              style={[
+                styles.button,
+                {
+                  backgroundColor: "#ffffff",
+                  borderWidth: 1,
+                  borderColor: Colors.MediumGrey,
+                },
+              ]}
+              onPress={onClose}
+            >
+              <Text style={[styles.buttonText, { color: Colors.Black }]}>
+                No
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -32,47 +48,46 @@ return (
   );
 };
 
-export default LotifileAlert
-
+export default LotifileAlert;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   innerContainer: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 20,
-    alignItems: 'center',
-    width:'90%'
+    backgroundColor: "#fff",
+    borderRadius: moderateScale(10),
+    padding: moderateScale(20),
+    alignItems: "center",
+    width: "90%",
   },
   animation: {
-    width: 150,
-    height: 150,
+    width: moderateScale(150),
+    height: moderateScale(150),
   },
   title: {
-    fontSize: responsiveFontSize(18),
-    color:Colors.Black,
-    fontWeight: '600',
-    marginTop: responsivePadding(10),
+    fontSize: textScale(16),
+    color: Colors.Black,
+    fontWeight: "600",
+    marginTop: moderateScaleVertical(10),
   },
   buttonContainer: {
-    flexDirection: 'row',
-    marginTop: responsivePadding(20),
+    flexDirection: "row",
+    marginTop: moderateScaleVertical(20),
   },
   button: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    marginHorizontal: 10,
-    borderRadius: 5,
-    backgroundColor: '#F7A81B',
-    width:'40%',
-    alignItems:'center'
+    paddingHorizontal: moderateScale(20),
+    paddingVertical: moderateScaleVertical(10),
+    marginHorizontal: moderateScaleVertical(10),
+    borderRadius: moderateScale(5),
+    backgroundColor: Colors.Primary,
+    width: "40%",
+    alignItems: "center",
   },
   buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: "#fff",
+    fontWeight: "bold",
   },
 });

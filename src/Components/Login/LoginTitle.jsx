@@ -2,6 +2,8 @@ import {StyleSheet, Text, View} from 'react-native';
 import React from 'react';
 import {responsiveFontSize, responsivePadding} from '../../Theme/Responsive';
 import Colors from '../../Theme/Colors';
+import { moderateScaleVertical, textScale } from '../../utils/ResponsiveSize';
+import FontFamily from '../../utils/FontFamily';
 
 const LoginTitle = () => {
   return (
@@ -17,11 +19,11 @@ const styles = StyleSheet.create({
   titleHolder: {
     width: '90%',
     alignSelf: 'center',
-    marginVertical: responsivePadding(10),
+    marginVertical: moderateScaleVertical(10),
   },
   text: {
-    color: Colors.Black,
-    fontSize: responsiveFontSize(18),
-    fontWeight: '500',
+    color: Colors.Tertiary,
+    fontSize: textScale(18),
+   fontFamily:FontFamily.P_500,
   },
 });

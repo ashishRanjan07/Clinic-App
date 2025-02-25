@@ -2,9 +2,10 @@ import {Image, StatusBar, StyleSheet, Text, View} from 'react-native';
 import React from 'react';
 import Colors from '../../../Theme/Colors';
 import images from '../../../Theme/Image';
-import {responsiveFontSize, responsivePadding} from '../../../Theme/Responsive';
 import Button from '../../../Components/General/Button';
 import {useNavigation} from '@react-navigation/native';
+import { moderateScale, moderateScaleVertical, textScale } from '../../../utils/ResponsiveSize';
+import FontFamily from '../../../utils/FontFamily';
 const Welcome = () => {
   const navigation = useNavigation();
   const LoginScreen = () => {
@@ -45,29 +46,29 @@ const styles = StyleSheet.create({
   },
   imageStyle: {
     width: '90%',
-    height: responsivePadding(300),
+    height: moderateScale(300),
   },
   title: {
     alignSelf: 'center',
     width: '80%',
-    marginVertical: responsivePadding(20),
-    fontSize: responsiveFontSize(20),
+    marginVertical: moderateScaleVertical(15),
+    fontSize: textScale(17),
     textAlign: 'center',
     color: Colors.Black,
-    fontWeight: '400',
+    fontFamily:FontFamily.P_400
   },
   description: {
     alignSelf: 'center',
     width: '80%',
-    marginVertical: responsivePadding(10),
+    marginVertical: moderateScaleVertical(10),
     textAlign: 'center',
-    fontSize: responsiveFontSize(14),
+    fontSize: textScale(12),
     color: Colors.MediumGrey,
-    fontWeight: '500',
+   fontFamily:FontFamily.P_500
   },
   buttonHolder: {
     position: 'absolute',
-    bottom: responsivePadding(40),
+    bottom: moderateScaleVertical(40),
     width: '80%',
     alignItems: 'center',
   },

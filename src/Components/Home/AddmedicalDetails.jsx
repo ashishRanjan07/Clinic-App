@@ -1,4 +1,6 @@
 import {
+  KeyboardAvoidingView,
+  Platform,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -7,35 +9,32 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-} from 'react-native';
-import React from 'react';
-import Colors from '../../Theme/Colors';
-import AntDesign from 'react-native-vector-icons/AntDesign';
-import {responsiveFontSize, responsivePadding} from '../../Theme/Responsive';
-import {useNavigation} from '@react-navigation/native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import Entypo from 'react-native-vector-icons/Entypo';
+} from "react-native";
+import React from "react";
+import Colors from "../../Theme/Colors";
+import { useNavigation } from "@react-navigation/native";
+import Ionicons from "react-native-vector-icons/Ionicons";
+import InternalHeader from "../General/InternalHeader";
+import {
+  moderateScale,
+  moderateScaleVertical,
+  textScale,
+} from "../../utils/ResponsiveSize";
 const AddmedicalDetails = () => {
   const navigation = useNavigation();
   return (
     <>
-      <SafeAreaView style={{backgroundColor: Colors.Secondary}} />
-      <StatusBar barStyle={'dark-content'} backgroundColor={Colors.Secondary} />
+      <SafeAreaView style={{ backgroundColor: Colors.Secondary }} />
+      <StatusBar barStyle={"dark-content"} backgroundColor={Colors.Secondary} />
 
       <View style={styles.main}>
         {/* HeaderView */}
-        <View style={styles.headerHolder}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <AntDesign
-              name="arrowleft"
-              size={responsiveFontSize(30)}
-              color={Colors.Black}
-            />
-          </TouchableOpacity>
-          <Text style={styles.HeaderText}>Medical Details</Text>
-        </View>
+        <InternalHeader title={"Medical Details"} />
         {/* Content Holder */}
-        <ScrollView style={styles.contentHolder}>
+        <ScrollView
+          style={styles.contentHolder}
+          contentContainerStyle={{ paddingBottom: 150 }}
+        >
           {/* Symptoms */}
           <View style={styles.symptoms}>
             <TextInput
@@ -58,39 +57,55 @@ const AddmedicalDetails = () => {
           <View style={styles.buttonHolder}>
             {/* Add Prescription */}
             <TouchableOpacity
-              onPress={() => navigation.navigate('Create Prescription')}
-              style={styles.buttonContentHolder}>
+              onPress={() => navigation.navigate("CreatePrescription")}
+              style={[
+                styles.buttonContentHolder,
+                { backgroundColor: Colors.Primary, fontWeight: "600" },
+              ]}
+            >
               <Ionicons
                 name="add"
-                size={responsiveFontSize(30)}
+                size={moderateScale(30)}
                 color={Colors.White}
               />
-              <Text style={styles.buttontext}>Prescriptions</Text>
+              <Text style={styles.buttontext}>Prescription</Text>
             </TouchableOpacity>
             {/* Cancle  */}
             <TouchableOpacity
               onPress={() => navigation.goBack()}
-              style={styles.buttonContentHolder}>
-              <Entypo
+              style={[
+                styles.buttonContentHolder,
+                {
+                  backgroundColor: "transparent",
+                  borderWidth: 1,
+                  borderColor: Colors.Grey,
+                },
+              ]}
+            >
+              {/* <Entypo
                 name="minus"
-                size={responsiveFontSize(30)}
+                size={moderateScale(30)}
                 color={Colors.White}
-              />
-              <Text style={styles.buttontext}>Cancle</Text>
+              /> */}
+              <Text style={[styles.buttontext, { color: Colors.Black }]}>
+                Cancel
+              </Text>
             </TouchableOpacity>
           </View>
-          
-        </ScrollView>
-        {/* Lower Button */}
-        <View
-            style={styles.buttonHolder2}>
+
+          {/* Lower Button */}
+          <View style={styles.buttonHolder2}>
             <TouchableOpacity style={styles.button2}>
               <Text style={styles.buttonText2}>Save </Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button2}>
-              <Text style={styles.buttonText2}>Cancle </Text>
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              style={styles.button2}
+            >
+              <Text style={styles.buttonText2}>Cancel </Text>
             </TouchableOpacity>
           </View>
+        </ScrollView>
       </View>
     </>
   );
@@ -103,84 +118,72 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.Secondary,
   },
-  headerHolder: {
-    marginVertical: responsivePadding(10),
-    padding: responsivePadding(10),
-    width: '95%',
-    alignSelf: 'center',
-    flexDirection: 'row',
-    gap: responsivePadding(30),
-    alignItems: 'center',
-  },
-  HeaderText: {
-    fontSize: responsiveFontSize(20),
-    color: Colors.Tertiary,
-    fontWeight: '600',
-  },
   contentHolder: {
-    borderWidth: 2,
+    borderWidth: moderateScale(2),
     flex: 1,
-    width: '95%',
-    alignSelf: 'center',
-    borderRadius: 5,
-    padding: 10,
+    width: "95%",
+    // height:'90%'
+    alignSelf: "center",
+    borderRadius: moderateScale(5),
+    padding: moderateScale(10),
     borderColor: Colors.White,
     backgroundColor: Colors.White,
   },
   symptoms: {
-    borderWidth: 2,
+    borderWidth: moderateScale(2),
     borderColor: Colors.Secondary,
-    marginVertical: 5,
+    marginVertical: moderateScaleVertical(5),
     backgroundColor: Colors.Secondary,
-    borderRadius: 10,
+    borderRadius: moderateScale(10),
   },
   inputHolder: {
-    fontSize: responsiveFontSize(18),
+    fontSize: textScale(18),
     color: Colors.Black,
-    paddingLeft: responsivePadding(10),
-    height: responsivePadding(150),
+    paddingLeft: moderateScale(10),
+    height: moderateScale(150),
   },
   buttonHolder: {
-    marginVertical: 5,
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
+    marginVertical: moderateScaleVertical(5),
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
   },
   buttontext: {
     color: Colors.White,
-    fontWeight: '600',
-    fontSize: responsiveFontSize(18),
+    // fontWeight: '600',
+    fontSize: textScale(18),
   },
   buttonContentHolder: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-around',
-    backgroundColor: Colors.Primary,
-    gap: 5,
-    padding: 10,
-    width: '45%',
-    borderRadius: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-around",
+    //backgroundColor: Colors.Primary,
+    gap: moderateScale(5),
+    padding: moderateScale(10),
+    width: "45%",
+    borderRadius: moderateScale(10),
   },
   button2: {
-    width: '45%',
-    alignItems: 'center',
-    borderRadius: responsivePadding(5),
+    width: "45%",
+    alignItems: "center",
+    borderRadius: moderateScale(5),
     borderWidth: 1,
-    padding: responsivePadding(10),
+    padding: moderateScale(10),
     backgroundColor: Colors.Primary,
     borderColor: Colors.Primary,
   },
   buttonText2: {
     color: Colors.White,
-    fontSize: responsiveFontSize(18),
-    fontWeight: '600',
+    fontSize: textScale(18),
+    fontWeight: "600",
   },
-  buttonHolder2:{
-    
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '90%',
-    alignSelf: 'center',
-    marginBottom: responsivePadding(20),
-  }
+  buttonHolder2: {
+    flexDirection: "row",
+    position: "absolute",
+    bottom: 0,
+    justifyContent: "space-around",
+    width: "90%",
+    alignSelf: "center",
+    marginBottom: moderateScaleVertical(20),
+  },
 });
